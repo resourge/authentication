@@ -1,3 +1,10 @@
+# @resourge/react-authentication-v1.0.0 (2023-06-07)
+
+
+### Features
+
+* **project:** first commit ([34b11d0](https://github.com/resourge/authentication/commit/34b11d0cc147e3a33758a328cea455b42357e9de))
+
 # [@resourge/react-translations-v1.6.3](https://github.com/resourge/translations/compare/@resourge/react-translations-v1.6.2...@resourge/react-translations-v1.6.3) (2023-05-09)
 
 
