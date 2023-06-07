@@ -15,12 +15,6 @@
 				"prepareCmd": "cross-env PROJECT_VERSION=${nextRelease.version} npm run build"
 			}
 		],
-		[
-			"@semantic-release/exec",
-			{
-				"prepareCmd": "cross-env PROJECT_VERSION=${nextRelease.version} npm run build --prefix=../viteTranslationPlugin"
-			}
-		],
 		"@semantic-release/npm",
 		"@semantic-release/github",
 		[
