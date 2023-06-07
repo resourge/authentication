@@ -11,7 +11,7 @@
     "test": "npm run test --workspaces",
     "test:watch": "npm run test:watch --workspaces",
     "coverage": "npm run coverage --workspaces",
-    "semantic-release:react-authentication": "npm run semantic-release --prefix=./packages/react-translations",
+    "semantic-release:react-authentication": "npm run semantic-release --prefix=./packages/react-authentication",
     "semantic-release": "npm run semantic-release:react-authentication"
   },
   "author": "resourge",
