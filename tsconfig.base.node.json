@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"composite": true,
+		"skipLibCheck": true,
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"strict": true,
+		"strictNullChecks": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"rootDir": "./",
+		"baseUrl": "./",
+		"paths": {
+			"@config/*": [
+				"./config/*"
+			]
+		}
+	},
+	"include": [
+		"**/vite.config.ts",
+		"./config/defineLibConfig.ts",
+		"package.json"
+	]
+}

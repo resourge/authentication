@@ -1,0 +1,37 @@
+{
+	"name": "@resourge/react-authentication",
+	"version": "0.0.1",
+	"type": "module",
+	"devDependencies": {
+		"@types/react": "^18.0.28",
+		"@types/react-dom": "^18.0.11",
+		"@vitejs/plugin-react-swc": "^3.3.2",
+		"react": ">=17.0.0",
+		"react-dom": ">=17.0.0"
+	},
+	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "resourge",
+	"license": "MIT",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/resourge/authentication.git",
+		"directory": "packages/react-authentication"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"coverage": "vitest run --coverage",
+		"semantic-release": "semantic-release -e semantic-release-monorepo"
+	}
+}

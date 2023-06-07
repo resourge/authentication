@@ -1,0 +1,34 @@
+{
+  	"extends": "semantic-release-monorepo",
+	"plugins": [
+		"@semantic-release/commit-analyzer",
+		"@semantic-release/release-notes-generator",
+		[
+			"@semantic-release/changelog",
+			{
+				"changelogFile": "CHANGELOG.md"
+			}
+		],
+		[
+			"@semantic-release/exec",
+			{
+				"prepareCmd": "cross-env PROJECT_VERSION=${nextRelease.version} npm run build"
+			}
+		],
+		[
+			"@semantic-release/exec",
+			{
+				"prepareCmd": "cross-env PROJECT_VERSION=${nextRelease.version} npm run build --prefix=../viteTranslationPlugin"
+			}
+		],
+		"@semantic-release/npm",
+		"@semantic-release/github",
+		[
+			"@semantic-release/git",
+			{
+				"assets": ["CHANGELOG.md", "package.json"]
+			}
+		]
+	],
+    "noCi": true
+}

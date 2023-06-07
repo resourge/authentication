@@ -1,0 +1,39 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"strict": true,
+		"strictNullChecks": true,
+		"jsx": "preserve",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"skipLibCheck": true,
+		"noEmit": true,
+		"baseUrl": ".",
+		"paths": {
+			"@resourge/translations": [
+				"./packages/translations/src/lib/index.ts"
+			]
+		}
+	},
+	"include": [
+		"./**/src/**/*",
+		"./config/*",
+		"./.eslintrc.cjs"
+	],
+	"exclude": [
+		"./**/dist/**/*"
+	],
+	"references": [
+		{
+			"path": "./tsconfig.base.node.json"
+		}
+	]
+}
