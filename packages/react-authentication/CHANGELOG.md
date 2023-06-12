@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.0.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.1...@resourge/react-authentication-v1.0.2) (2023-06-12)
+
+
+### Bug Fixes
+
+* **authenticationsystem:** fix loadingComponent type not accepting Element components ([460b088](https://github.com/resourge/authentication/commit/460b0881c5d348c041481c66f059d8c779646a07))
+
 # [@resourge/react-authentication-v1.0.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.0...@resourge/react-authentication-v1.0.1) (2023-06-12)
 
 
