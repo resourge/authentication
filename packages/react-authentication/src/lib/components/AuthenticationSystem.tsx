@@ -14,7 +14,7 @@ export type AuthenticationSystemProps<
 	/**
 	 * In case loadingComponent is undefined, the "suspense" will continue in the Suspense Tree
 	 */
-	loadingComponent?: boolean | React.ReactFragment | React.ReactPortal | null
+	loadingComponent?: boolean | React.ReactElement | React.ReactFragment | React.ReactPortal | null
 }
 
 function AuthenticationSystem<
