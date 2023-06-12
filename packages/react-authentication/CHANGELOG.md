@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.0.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.0...@resourge/react-authentication-v1.0.1) (2023-06-12)
+
+
+### Bug Fixes
+
+* **project:** fix SetupAuthenticationType and fix imports ([11207a0](https://github.com/resourge/authentication/commit/11207a0c85fcc31a9fb3dcafd2cdc019483060e9))
+
 # @resourge/react-authentication-v1.0.0 (2023-06-07)
 
 
