@@ -5,9 +5,9 @@ export type SetupAuthenticationType<
 	U extends BaseUser, 
 	P extends BasePermissions
 > = {
-	permissions: P
 	token: string | null
-	user: U
+	permissions?: P
+	user?: U
 }
 
 export type SetupAuthenticationStorage = {

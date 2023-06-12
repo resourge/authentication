@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useMemo, useState } from 'react';
 
 import { AuthenticationContext, type AuthenticationContextType } from '../context/AuthenticationContext';
@@ -8,18 +9,32 @@ import { BaseUser } from '../models/BaseUser';
 import SessionService from '../services/SessionService';
 import { type SetupAuthenticationReturn, type SetupAuthenticationType } from '../setupAuthentication';
 
-export type AuthenticationProviderProps<
+export type AuthenticationProviderPropsLoginOnly<
+	U extends BaseUser = BaseUser,
+	P extends BasePermissions = BasePermissions,
+> = {
+	authentication?: undefined
+	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationType<U, P>>
+}
+
+export type AuthenticationProviderPropsAuthentication<
 	U extends BaseUser = BaseUser,
 	P extends BasePermissions = BasePermissions,
 > = {
 	authentication: SetupAuthenticationReturn<U, P>
+	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | string>
+}
+
+export type AuthenticationProviderProps<
+	U extends BaseUser = BaseUser,
+	P extends BasePermissions = BasePermissions,
+> = {
 	children?: React.ReactNode
-	onLogin?: (userNameOrEmail: string, password: string) => Promise<string | null>
 	onLogout?: () => Promise<void> | void
 
 	onRefreshToken?: () => Promise<SetupAuthenticationType<U, P>>
 	onToken?: (token: string | null) => Promise<void> | void
-}
+} & (AuthenticationProviderPropsAuthentication<U, P> | AuthenticationProviderPropsLoginOnly<U, P>)
 
 type AuthenticationState<
 	U extends BaseUser = BaseUser,
@@ -41,7 +56,9 @@ function AuthenticationProvider<
 	onToken,
 	onLogin
 }: AuthenticationProviderProps<U, P>) {
-	const authenticationData = authentication.read();
+	const authenticationData = authentication ? authentication.read() : ({
+		token: null 
+	});
 	
 	const [error, setError] = useState<any>(null);
 
@@ -50,7 +67,7 @@ function AuthenticationProvider<
 	}
 
 	const _onToken = (token: string | null) => {
-		authentication.setToken(token);
+		authentication?.setToken(token);
 		onToken && onToken(token)
 	}
 
@@ -64,8 +81,8 @@ function AuthenticationProvider<
 		
 		return {
 			token: authenticationData.token,
-			user: authenticationData.token ? authenticationData.user : new BaseUser() as U,
-			permissions: authenticationData.token ? authenticationData.permissions : new BasePermissions() as P
+			user: authenticationData.token && authenticationData.user ? authenticationData.user : new BaseUser() as U,
+			permissions: authenticationData.token && authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P
 		}
 	})
 
@@ -86,16 +103,19 @@ function AuthenticationProvider<
 			}
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const token = await onLogin!(userNameOrEmail, password);
 
-		const auth = await authentication.promise(token);
+		if ( token !== null ) {
+			const auth: SetupAuthenticationType<U, P> = typeof token === 'object' 
+				? token
+				: await authentication!.promise(token)
 
-		setAuthentication({
-			token: auth.token,
-			user: auth.token ? auth.user : new BaseUser() as U,
-			permissions: auth.token ? auth.permissions : new BasePermissions() as P
-		})
+			setAuthentication({
+				token: auth.token,
+				user: auth.token ? auth.user : new BaseUser() as U,
+				permissions: auth.token ? auth.permissions : new BasePermissions() as P
+			})
+		}
 	}
 
 	const setAuthenticationError = (error: any) => {
@@ -103,15 +123,17 @@ function AuthenticationProvider<
 	}
 
 	const authenticate = async () => {
-		const token = await authentication.getToken();
+		if ( authentication ) {
+			const token = await authentication.getToken();
 		
-		const auth = await authentication.promise(token);
+			const auth = await authentication.promise(token);
 
-		setAuthentication({
-			token: auth.token,
-			user: auth.token ? auth.user : new BaseUser() as U,
-			permissions: auth.token ? auth.permissions : new BasePermissions() as P
-		})
+			setAuthentication({
+				token: auth.token,
+				user: auth.token ? auth.user : new BaseUser() as U,
+				permissions: auth.token ? auth.permissions : new BasePermissions() as P
+			})
+		}
 	}
 
 	const refreshToken = async (): Promise<boolean> => {
