@@ -154,15 +154,15 @@ function AuthenticationProvider<
 	}
 
 	const logout = async () => {
+		if ( onLogout ) {
+			await Promise.resolve(onLogout())
+		}
+		
 		setAuthentication({
 			token: null,
 			user: new BaseUser() as U,
 			permissions: new BasePermissions() as P
 		})
-
-		if ( onLogout ) {
-			await Promise.resolve(onLogout())
-		}
 	}
 
 	SessionService.authenticate = authenticate;
