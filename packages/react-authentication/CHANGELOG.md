@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.0.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.2...@resourge/react-authentication-v1.0.3) (2023-07-12)
+
+
+### Bug Fixes
+
+* **authentication provider:** trigger onlogout before removing token ([d049a82](https://github.com/resourge/authentication/commit/d049a824621b8dba4513383d4741469e5688303e))
+
 # [@resourge/react-authentication-v1.0.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.1...@resourge/react-authentication-v1.0.2) (2023-06-12)
 
 
