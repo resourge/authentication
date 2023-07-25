@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.1.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.3...@resourge/react-authentication-v1.1.0) (2023-07-25)
+
+
+### Features
+
+* **errorboundary:** redirect on error ([5c3dd6b](https://github.com/resourge/authentication/commit/5c3dd6b71453eac01a12595598c6e9b0b08e4237))
+
 # [@resourge/react-authentication-v1.0.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.2...@resourge/react-authentication-v1.0.3) (2023-07-12)
 
 
