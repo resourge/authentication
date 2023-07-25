@@ -10,6 +10,10 @@ export type ErrorBoundaryProps = {
 	 * Method call on each error "ErrorBoundary" catch's.
 	 */
 	onError?: (error: any, errorInfo: ErrorInfo) => void
+	/**
+	 * After error will render children again
+	 */
+	redirectOnError?: boolean
 }
 
 type ErrorBoundaryState = {
@@ -31,6 +35,14 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
 	componentDidCatch(error: Error | any, errorInfo: ErrorInfo) {
 		this.props.onError && this.props.onError(error, errorInfo)
+	}
+
+	componentDidUpdate() {
+		if ( this.state.hasError && this.props.redirectOnError ) {
+			this.setState({
+				hasError: false 
+			})
+		}
 	}
 
 	render() {
