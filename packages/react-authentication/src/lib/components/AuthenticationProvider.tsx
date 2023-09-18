@@ -33,7 +33,7 @@ export type AuthenticationProviderProps<
 	onLogout?: () => Promise<void> | void
 
 	onRefreshToken?: () => Promise<SetupAuthenticationType<U, P>>
-	onToken?: (token: string | null) => Promise<void> | void
+	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
 } & (AuthenticationProviderPropsAuthentication<U, P> | AuthenticationProviderPropsLoginOnly<U, P>)
 
 type AuthenticationState<
@@ -66,9 +66,9 @@ function AuthenticationProvider<
 		throw error
 	}
 
-	const _onToken = (token: string | null) => {
+	const _onToken = (token: string | null, user: U, permission: P) => {
 		authentication?.setToken(token);
-		onToken && onToken(token)
+		onToken && onToken(token, user, permissions)
 	}
 
 	const [
@@ -77,18 +77,22 @@ function AuthenticationProvider<
 		}, 
 		_setAuthentication
 	] = useState<AuthenticationState<U, P>>(() => {
-		_onToken(authenticationData.token)
+		const token = authenticationData.token;
+		const user = authenticationData.token && authenticationData.user ? authenticationData.user : new BaseUser() as U;
+		const permissions = authenticationData.token && authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P;
+
+		_onToken(token, user, permissions)
 		
 		return {
-			token: authenticationData.token,
-			user: authenticationData.token && authenticationData.user ? authenticationData.user : new BaseUser() as U,
-			permissions: authenticationData.token && authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P
+			token,
+			user,
+			permissions
 		}
 	})
 
-	const setAuthentication = (newAuthentication: Partial<AuthenticationState<U, P>>) => {
+	const setAuthentication = (newAuthentication: AuthenticationState<U, P>) => {
 		if ( newAuthentication.token !== undefined ) {
-			_onToken(newAuthentication.token)
+			_onToken(newAuthentication.token, newAuthentication.user, newAuthentication.permissions)
 		}
 		_setAuthentication((oldAuthentication) => ({
 			...oldAuthentication,
@@ -112,8 +116,8 @@ function AuthenticationProvider<
 
 			setAuthentication({
 				token: auth.token,
-				user: auth.token ? auth.user : new BaseUser() as U,
-				permissions: auth.token ? auth.permissions : new BasePermissions() as P
+				user: auth.token && auth.user ? auth.user : new BaseUser() as U,
+				permissions: auth.token && auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
 		}
 	}
@@ -130,8 +134,8 @@ function AuthenticationProvider<
 
 			setAuthentication({
 				token: auth.token,
-				user: auth.token ? auth.user : new BaseUser() as U,
-				permissions: auth.token ? auth.permissions : new BasePermissions() as P
+				user: auth.token && auth.user ? auth.user : new BaseUser() as U,
+				permissions: auth.token && auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
 		}
 	}
@@ -142,8 +146,8 @@ function AuthenticationProvider<
 
 			setAuthentication({
 				token: authentication.token,
-				user: authentication.token ? authentication.user : new BaseUser() as U,
-				permissions: authentication.token ? authentication.permissions : new BasePermissions() as P
+				user: authentication.user && authentication.token ? authentication.user : new BaseUser() as U,
+				permissions: authentication.permissions && authentication.token ? authentication.permissions : new BasePermissions() as P
 			})
 				
 			if ( authentication.token ) {
