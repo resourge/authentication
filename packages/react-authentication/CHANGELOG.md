@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.2.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.2.0...@resourge/react-authentication-v1.2.1) (2023-09-18)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix wrong variavel ([9a06916](https://github.com/resourge/authentication/commit/9a069165a914ee227bb31cfdeaf4f9723ac30320))
+
 # [@resourge/react-authentication-v1.2.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.1.0...@resourge/react-authentication-v1.2.0) (2023-09-18)
 
 
