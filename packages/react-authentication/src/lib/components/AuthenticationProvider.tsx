@@ -68,7 +68,7 @@ function AuthenticationProvider<
 
 	const _onToken = (token: string | null, user: U, permission: P) => {
 		authentication?.setToken(token);
-		onToken && onToken(token, user, permissions)
+		onToken && onToken(token, user, permission)
 	}
 
 	const [
