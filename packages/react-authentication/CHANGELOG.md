@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.2.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.1.0...@resourge/react-authentication-v1.2.0) (2023-09-18)
+
+
+### Features
+
+* **authenticationprovider:** add user and permission to onToken ([995a859](https://github.com/resourge/authentication/commit/995a859419eedd95bb30b37995a015af34df1fd6))
+
 # [@resourge/react-authentication-v1.1.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.0.3...@resourge/react-authentication-v1.1.0) (2023-07-25)
 
 

@@ -1,6 +1,6 @@
 {
 	"name": "@resourge/react-authentication",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"type": "module",
 	"devDependencies": {
 		"@types/react": "^18.0.28",
