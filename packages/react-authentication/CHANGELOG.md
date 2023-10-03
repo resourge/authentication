@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.3.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.3.0...@resourge/react-authentication-v1.3.1) (2023-10-03)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** let developer change user or permissions without token being mandatory ([40edcd0](https://github.com/resourge/authentication/commit/40edcd04426b864aea36378b1798257b2bf987d8))
+
 # [@resourge/react-authentication-v1.3.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.2.1...@resourge/react-authentication-v1.3.0) (2023-10-03)
 
 
