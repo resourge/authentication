@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 import { NoContextError } from '../errors/NoContextError';
 import { type BaseUser } from '../models/BaseUser';
 
-export type AuthenticationContextType<U extends BaseUser = BaseUser> = {
+export type AuthenticationContextType<U extends BaseUser = any> = {
 	/**
 	 * Initial method, where token calls backend using token to get user "profile"
 	 */
@@ -24,6 +24,10 @@ export type AuthenticationContextType<U extends BaseUser = BaseUser> = {
 	 * Method to call in case there is a need for custom Authentication errors
 	 */
 	setAuthenticationError: (error: any) => void
+	/**
+	 * To manually update user
+	 */
+	setUser: (userState: U | ((user: U) => U)) => void
 	/**
 	 * Authentication token
 	 */

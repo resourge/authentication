@@ -90,6 +90,18 @@ function AuthenticationProvider<
 		}
 	})
 
+	const setUser = (userState: U | ((user: U) => U)) => {
+		let newUser = userState as U;
+		if ( typeof userState === 'function' ) {
+			newUser = userState(user);
+		}
+		_setAuthentication({
+			token,
+			permissions,
+			user: newUser
+		})
+	}
+
 	const setAuthentication = (newAuthentication: AuthenticationState<U, P>) => {
 		if ( newAuthentication.token !== undefined ) {
 			_onToken(newAuthentication.token, newAuthentication.user, newAuthentication.permissions)
@@ -175,14 +187,15 @@ function AuthenticationProvider<
 	SessionService.setAuthenticationError = setAuthenticationError;
 	SessionService.login = login;
 
-	const AuthContextValue: AuthenticationContextType = useMemo(() => ({
+	const AuthContextValue: AuthenticationContextType<U> = useMemo(() => ({
 		user,
 		token,
 		authenticate,
 		logout,
 		refreshToken,
 		setAuthenticationError,
-		login
+		login,
+		setUser
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}), [user, token]);
 
