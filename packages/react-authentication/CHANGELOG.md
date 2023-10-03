@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.3.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.2.1...@resourge/react-authentication-v1.3.0) (2023-10-03)
+
+
+### Features
+
+* **authenticationprovider:** add setUser to manually update user ([cfdbc70](https://github.com/resourge/authentication/commit/cfdbc705affb686ae1e3dbab5864307f8940ca54))
+
 # [@resourge/react-authentication-v1.2.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.2.0...@resourge/react-authentication-v1.2.1) (2023-09-18)
 
 
