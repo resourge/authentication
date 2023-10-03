@@ -78,8 +78,8 @@ function AuthenticationProvider<
 		_setAuthentication
 	] = useState<AuthenticationState<U, P>>(() => {
 		const token = authenticationData.token;
-		const user = authenticationData.token && authenticationData.user ? authenticationData.user : new BaseUser() as U;
-		const permissions = authenticationData.token && authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P;
+		const user = authenticationData.user ? authenticationData.user : new BaseUser() as U;
+		const permissions = authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P;
 
 		_onToken(token, user, permissions)
 		
@@ -128,8 +128,8 @@ function AuthenticationProvider<
 
 			setAuthentication({
 				token: auth.token,
-				user: auth.token && auth.user ? auth.user : new BaseUser() as U,
-				permissions: auth.token && auth.permissions ? auth.permissions : new BasePermissions() as P
+				user: auth.user ? auth.user : new BaseUser() as U,
+				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
 		}
 	}
@@ -146,8 +146,8 @@ function AuthenticationProvider<
 
 			setAuthentication({
 				token: auth.token,
-				user: auth.token && auth.user ? auth.user : new BaseUser() as U,
-				permissions: auth.token && auth.permissions ? auth.permissions : new BasePermissions() as P
+				user: auth.user ? auth.user : new BaseUser() as U,
+				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
 		}
 	}
@@ -158,8 +158,8 @@ function AuthenticationProvider<
 
 			setAuthentication({
 				token: authentication.token,
-				user: authentication.user && authentication.token ? authentication.user : new BaseUser() as U,
-				permissions: authentication.permissions && authentication.token ? authentication.permissions : new BasePermissions() as P
+				user: authentication.user ? authentication.user : new BaseUser() as U,
+				permissions: authentication.permissions ? authentication.permissions : new BasePermissions() as P
 			})
 				
 			if ( authentication.token ) {
