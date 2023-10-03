@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.3.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.3.1...@resourge/react-authentication-v1.3.2) (2023-10-03)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** make setUser always create a new instance of User ([e6028f2](https://github.com/resourge/authentication/commit/e6028f2094f20ab05ea62c91d674a60d83ca3ed1))
+
 # [@resourge/react-authentication-v1.3.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.3.0...@resourge/react-authentication-v1.3.1) (2023-10-03)
 
 
