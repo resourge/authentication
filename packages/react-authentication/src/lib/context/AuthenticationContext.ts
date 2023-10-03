@@ -27,7 +27,7 @@ export type AuthenticationContextType<U extends BaseUser = any> = {
 	/**
 	 * To manually update user
 	 */
-	setUser: (userState: U | ((user: U) => U)) => void
+	setUser: (userState: U | ((user: U) => void)) => void
 	/**
 	 * Authentication token
 	 */

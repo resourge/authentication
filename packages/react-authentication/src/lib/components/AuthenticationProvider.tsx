@@ -90,11 +90,14 @@ function AuthenticationProvider<
 		}
 	})
 
-	const setUser = (userState: U | ((user: U) => U)) => {
-		let newUser = userState as U;
+	const setUser = (userState: U | ((user: U) => void)) => {
+		let newUser = typeof userState === 'function' ? user : userState;
+		newUser = Object.assign(Object.create(Object.getPrototypeOf(newUser)), newUser)
+
 		if ( typeof userState === 'function' ) {
-			newUser = userState(user);
+			userState(newUser);
 		}
+		
 		_setAuthentication({
 			token,
 			permissions,
