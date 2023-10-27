@@ -121,7 +121,7 @@ function AuthenticationProvider<
 			if ( !user ) {
 				const auth = await authentication.promise(token);
 				user = auth.user
-				refreshToken = auth.refreshToken
+				refreshToken = refreshToken ?? auth.refreshToken
 				permissions = auth.permissions
 			}
 
