@@ -7,6 +7,7 @@ export type SetupAuthenticationType<
 > = {
 	token: string | null
 	permissions?: P
+	refreshToken?: string | null
 	user?: U
 }
 
@@ -27,11 +28,19 @@ export type SetupAuthenticationStorage = {
 
 export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissions> = {
 	/**
+	 * Gets refresh token from local storage (if storage is set)
+	 */
+	getRefreshToken: () => Promise<string | null | undefined>
+	/**
 	 * Gets token from local storage (if storage is set)
 	 */
 	getToken: () => Promise<string | null | undefined>
 	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P>>
 	read: () => SetupAuthenticationType<U, P>
+	/**
+	 * Sets refresh token from local storage (if storage is set)
+	 */
+	setRefreshToken: (refreshToken: string | null | undefined) => void
 	/**
 	 * Sets token from local storage (if storage is set)
 	 */
@@ -40,6 +49,7 @@ export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissi
 }
 
 const STORAGE_TOKEN_KEY = '_AC_'
+const STORAGE_REFRESH_TOKEN_KEY = '_ACR_'
 
 /**
  * Sets the start of the authentication system. 
@@ -68,10 +78,30 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 		}
 	}
 
+	const getRefreshToken = () => {
+		return Promise.resolve(storage?.getItem(STORAGE_REFRESH_TOKEN_KEY));
+	}
+	const setRefreshToken = (refreshToken: string | null | undefined) => {
+		if ( storage && refreshToken !== undefined ) {
+			if ( refreshToken === null ) {
+				storage?.removeItem(STORAGE_REFRESH_TOKEN_KEY)
+				return;
+			}
+
+			storage?.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken)
+		}
+	}
+
 	const _promise = async () => {
-		const token = await getToken();
+		const [token, refreshToken] = await Promise.all([
+			getToken(),
+			getRefreshToken()
+		]);
 		
-		return await promise(token)
+		return {
+			...await promise(token),
+			refreshToken
+		}
 	}
 
 	const suspend = _promise().then(
@@ -100,6 +130,8 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 		},
 		storage,
 		setToken,
-		getToken
+		getToken,
+		setRefreshToken,
+		getRefreshToken
 	};
 };

@@ -9,32 +9,18 @@ import { BaseUser } from '../models/BaseUser';
 import SessionService from '../services/SessionService';
 import { type SetupAuthenticationReturn, type SetupAuthenticationType } from '../setupAuthentication';
 
-export type AuthenticationProviderPropsLoginOnly<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions,
-> = {
-	authentication?: undefined
-	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationType<U, P>>
-}
-
-export type AuthenticationProviderPropsAuthentication<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions,
-> = {
-	authentication: SetupAuthenticationReturn<U, P>
-	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | string>
-}
-
 export type AuthenticationProviderProps<
 	U extends BaseUser = BaseUser,
 	P extends BasePermissions = BasePermissions,
 > = {
+	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
+	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationType<U, P>>
 	onLogout?: () => Promise<void> | void
 
-	onRefreshToken?: () => Promise<SetupAuthenticationType<U, P>>
+	onRefreshToken?: (refreshToken?: string | null) => Promise<SetupAuthenticationType<U, P>>
 	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
-} & (AuthenticationProviderPropsAuthentication<U, P> | AuthenticationProviderPropsLoginOnly<U, P>)
+} 
 
 type AuthenticationState<
 	U extends BaseUser = BaseUser,
@@ -43,6 +29,7 @@ type AuthenticationState<
 	permissions: P
 	token: string | null
 	user: U
+	refreshToken?: string | null
 }
 
 function AuthenticationProvider<
@@ -73,17 +60,19 @@ function AuthenticationProvider<
 
 	const [
 		{
-			token, user, permissions 
+			token, user, permissions, refreshToken: refreshTokenValue
 		}, 
 		_setAuthentication
 	] = useState<AuthenticationState<U, P>>(() => {
 		const token = authenticationData.token;
+		const refreshToken = authenticationData.refreshToken;
 		const user = authenticationData.user ? authenticationData.user : new BaseUser() as U;
 		const permissions = authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P;
 
 		_onToken(token, user, permissions)
 		
 		return {
+			refreshToken,
 			token,
 			user,
 			permissions
@@ -99,6 +88,7 @@ function AuthenticationProvider<
 		}
 		
 		_setAuthentication({
+			refreshToken: refreshTokenValue,
 			token,
 			permissions,
 			user: newUser
@@ -122,17 +112,24 @@ function AuthenticationProvider<
 			}
 		}
 
-		const token = await onLogin!(userNameOrEmail, password);
+		const loginAuth = await onLogin!(userNameOrEmail, password);
 
-		if ( token !== null ) {
-			const auth: SetupAuthenticationType<U, P> = typeof token === 'object' 
-				? token
-				: await authentication!.promise(token)
+		if ( loginAuth && loginAuth.token !== null ) {
+			let {
+				token, permissions, refreshToken, user 
+			} = loginAuth;
+			if ( !user ) {
+				const auth = await authentication.promise(token);
+				user = auth.user
+				refreshToken = auth.refreshToken
+				permissions = auth.permissions
+			}
 
 			setAuthentication({
-				token: auth.token,
-				user: auth.user ? auth.user : new BaseUser() as U,
-				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
+				token,
+				refreshToken,
+				user: user ?? new BaseUser() as U,
+				permissions: permissions ?? new BasePermissions() as P
 			})
 
 			return true;
@@ -147,12 +144,16 @@ function AuthenticationProvider<
 
 	const authenticate = async () => {
 		if ( authentication ) {
-			const token = await authentication.getToken();
+			const [token, refreshToken] = await Promise.all([
+				authentication.getToken(),
+				authentication.getRefreshToken()
+			]);
 		
 			const auth = await authentication.promise(token);
 
 			setAuthentication({
 				token: auth.token,
+				refreshToken: auth.refreshToken ?? refreshToken,
 				user: auth.user ? auth.user : new BaseUser() as U,
 				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
@@ -161,9 +162,10 @@ function AuthenticationProvider<
 
 	const refreshToken = async (): Promise<boolean> => {
 		if ( onRefreshToken ) {
-			const authentication = await onRefreshToken();
+			const authentication = await onRefreshToken(refreshTokenValue);
 
 			setAuthentication({
+				refreshToken: authentication.refreshToken,
 				token: authentication.token,
 				user: authentication.user ? authentication.user : new BaseUser() as U,
 				permissions: authentication.permissions ? authentication.permissions : new BasePermissions() as P
@@ -182,6 +184,7 @@ function AuthenticationProvider<
 		}
 		
 		setAuthentication({
+			refreshToken: undefined,
 			token: null,
 			user: new BaseUser() as U,
 			permissions: new BasePermissions() as P
