@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.4.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.3.2...@resourge/react-authentication-v1.4.0) (2023-10-27)
+
+
+### Features
+
+* **authenticationprovider:** return if login was succefully or not ([8394ff7](https://github.com/resourge/authentication/commit/8394ff700794c91d2c755db6bcc98e6ac7a850d8))
+
 # [@resourge/react-authentication-v1.3.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.3.1...@resourge/react-authentication-v1.3.2) (2023-10-03)
 
 
