@@ -2,8 +2,8 @@ import { type BasePermissions } from './models/BasePermissions';
 import { type BaseUser } from './models/BaseUser';
 
 export type SetupAuthenticationType<
-	U extends BaseUser, 
-	P extends BasePermissions
+	U extends BaseUser = BaseUser, 
+	P extends BasePermissions = BasePermissions
 > = {
 	token: string | null
 	permissions?: P
@@ -26,7 +26,7 @@ export type SetupAuthenticationStorage = {
 	setItem: (key: string, value: string) => Promise<void> | void
 }
 
-export type SetupAuthenticationReturn<U extends BaseUser = BaseUser, P extends BasePermissions = BasePermissions> = {
+export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissions> = {
 	/**
 	 * Gets refresh token from local storage (if storage is set)
 	 */
