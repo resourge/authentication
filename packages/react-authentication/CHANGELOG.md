@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.5.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.5.1...@resourge/react-authentication-v1.5.2) (2023-10-27)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** save refrehstoken on storag ([e3af867](https://github.com/resourge/authentication/commit/e3af867b557030e2df68c5830c33d11501f79d03))
+
 # [@resourge/react-authentication-v1.5.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.5.0...@resourge/react-authentication-v1.5.1) (2023-10-27)
 
 
