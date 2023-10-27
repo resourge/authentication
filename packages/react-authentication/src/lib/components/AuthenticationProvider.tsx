@@ -16,7 +16,7 @@ export type AuthenticationProviderProps<
 	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
 	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationTokenType>
-	onLogout?: () => Promise<void> | void
+	onLogout?: (token: string | null) => Promise<void> | void
 
 	onRefreshToken?: (refreshToken?: string | null) => Promise<null | SetupAuthenticationTokenType>
 	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
@@ -179,7 +179,7 @@ function AuthenticationProvider<
 
 	const logout = async () => {
 		if ( onLogout ) {
-			await Promise.resolve(onLogout())
+			await Promise.resolve(onLogout(token))
 		}
 		
 		setAuthentication({
