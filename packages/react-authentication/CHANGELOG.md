@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.6.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.5.2...@resourge/react-authentication-v1.6.0) (2023-10-27)
+
+
+### Features
+
+* **authentication:** simplify the process ([2d1fa04](https://github.com/resourge/authentication/commit/2d1fa04533dba4340abe7bbbf411cf6bf3e426cc))
+
 # [@resourge/react-authentication-v1.5.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.5.1...@resourge/react-authentication-v1.5.2) (2023-10-27)
 
 
