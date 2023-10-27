@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { AuthenticationContext, type AuthenticationContextType } from '../context/AuthenticationContext';
 import { PermissionsContext } from '../context/PermissionsContext';
@@ -196,6 +196,11 @@ function AuthenticationProvider<
 	SessionService.logout = logout;
 	SessionService.setAuthenticationError = setAuthenticationError;
 	SessionService.login = login;
+
+	useEffect(() => {
+		authentication?.setRefreshToken(refreshTokenValue ?? null)
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [refreshTokenValue])
 
 	const AuthContextValue: AuthenticationContextType<U> = useMemo(() => ({
 		user,
