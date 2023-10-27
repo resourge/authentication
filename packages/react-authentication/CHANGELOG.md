@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.5.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.5.0...@resourge/react-authentication-v1.5.1) (2023-10-27)
+
+
+### Bug Fixes
+
+* **setupauthentication:** setupAuthenticationType make generic params optional ([e6f65a6](https://github.com/resourge/authentication/commit/e6f65a69e40c8a81047de1282a9b14c20247e618))
+
 # [@resourge/react-authentication-v1.5.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.4.0...@resourge/react-authentication-v1.5.0) (2023-10-27)
 
 
