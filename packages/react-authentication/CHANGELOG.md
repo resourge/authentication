@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.6.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.0...@resourge/react-authentication-v1.6.1) (2023-10-27)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** add token to onLogout ([4033c67](https://github.com/resourge/authentication/commit/4033c672646e7b9bd4f0dd9310259635e8028aa4))
+
 # [@resourge/react-authentication-v1.6.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.5.2...@resourge/react-authentication-v1.6.0) (2023-10-27)
 
 
