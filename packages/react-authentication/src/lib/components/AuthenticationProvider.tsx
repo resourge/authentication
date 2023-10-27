@@ -115,7 +115,7 @@ function AuthenticationProvider<
 		}))
 	}
 
-	const login = async (userNameOrEmail: string, password: string) => {
+	const login = async (userNameOrEmail: string, password: string): Promise<boolean> => {
 		if ( __DEV__ ) {
 			if ( !onLogin ) {
 				throw new NoOnLoginError()
@@ -134,7 +134,11 @@ function AuthenticationProvider<
 				user: auth.user ? auth.user : new BaseUser() as U,
 				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
+
+			return true;
 		}
+
+		return false;
 	}
 
 	const setAuthenticationError = (error: any) => {

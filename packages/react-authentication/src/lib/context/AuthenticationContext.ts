@@ -11,7 +11,7 @@ export type AuthenticationContextType<U extends BaseUser = any> = {
 	/**
 	 * Method to call to login the user
 	 */
-	login: (userNameOrEmail: string, password: string) => Promise<void>
+	login: (userNameOrEmail: string, password: string) => Promise<boolean>
 	/**
 	 * Method to call when login out user
 	 */

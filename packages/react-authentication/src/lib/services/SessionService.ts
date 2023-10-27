@@ -11,7 +11,7 @@ class SessionService {
 	/**
 	 * Method to call to login the user
 	 */
-	public login = (userNameOrEmail: string, password: string): Promise<void> => Promise.resolve();
+	public login = (userNameOrEmail: string, password: string): Promise<boolean> => Promise.resolve(false);
 
 	/**
 	 * Method to call when login out user
