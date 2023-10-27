@@ -1,3 +1,16 @@
+# [@resourge/react-authentication-v1.5.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.4.0...@resourge/react-authentication-v1.5.0) (2023-10-27)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** on login if refreshToken is return prioritize that over authentication ([f419583](https://github.com/resourge/authentication/commit/f419583536ac381511b8430fbb0c54c2581693e5))
+* **index:** remove removed types from export ([c9d8e07](https://github.com/resourge/authentication/commit/c9d8e0705c34dad5236811015f52b0bf5ce7aa6e))
+
+
+### Features
+
+* **authenticationsystem:** add refreshtoken to system ([385f2b2](https://github.com/resourge/authentication/commit/385f2b2d3e5657a2fc45c88aee856bbab65e8283))
+
 # [@resourge/react-authentication-v1.4.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.3.2...@resourge/react-authentication-v1.4.0) (2023-10-27)
 
 
