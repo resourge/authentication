@@ -26,7 +26,7 @@ export type SetupAuthenticationStorage = {
 	setItem: (key: string, value: string) => Promise<void> | void
 }
 
-export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissions> = {
+export type SetupAuthenticationReturn<U extends BaseUser = BaseUser, P extends BasePermissions = BasePermissions> = {
 	/**
 	 * Gets refresh token from local storage (if storage is set)
 	 */
@@ -81,7 +81,7 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 	const getRefreshToken = () => {
 		return Promise.resolve(storage?.getItem(STORAGE_REFRESH_TOKEN_KEY));
 	}
-	
+
 	const setRefreshToken = (refreshToken: string | null | undefined) => {
 		if ( storage && refreshToken !== undefined ) {
 			if ( refreshToken === null ) {
