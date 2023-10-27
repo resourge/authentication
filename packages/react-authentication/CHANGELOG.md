@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.6.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.1...@resourge/react-authentication-v1.6.2) (2023-10-27)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix login not working as intended ([87372a3](https://github.com/resourge/authentication/commit/87372a30b9ac3b42c5d40ddb4663677853a70426))
+
 # [@resourge/react-authentication-v1.6.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.0...@resourge/react-authentication-v1.6.1) (2023-10-27)
 
 
