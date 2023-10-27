@@ -7,7 +7,7 @@ import { NoOnLoginError } from '../errors/NoOnLoginError';
 import { BasePermissions } from '../models/BasePermissions';
 import { BaseUser } from '../models/BaseUser';
 import SessionService from '../services/SessionService';
-import { type SetupAuthenticationReturn, type SetupAuthenticationType } from '../setupAuthentication';
+import { type SetupAuthenticationTokenType, type SetupAuthenticationReturn } from '../setupAuthentication';
 
 export type AuthenticationProviderProps<
 	U extends BaseUser = BaseUser,
@@ -15,10 +15,10 @@ export type AuthenticationProviderProps<
 > = {
 	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
-	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationType<U, P>>
+	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationTokenType>
 	onLogout?: () => Promise<void> | void
 
-	onRefreshToken?: (refreshToken?: string | null) => Promise<SetupAuthenticationType<U, P>>
+	onRefreshToken?: (refreshToken?: string | null) => Promise<null | SetupAuthenticationTokenType>
 	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
 } 
 
@@ -43,9 +43,11 @@ function AuthenticationProvider<
 	onToken,
 	onLogin
 }: AuthenticationProviderProps<U, P>) {
-	const authenticationData = authentication ? authentication.read() : ({
-		token: null 
-	});
+	const [sessionTokens, authenticationData] = authentication ? authentication.read() : [
+		({
+			token: null 
+		})
+	];
 	
 	const [error, setError] = useState<any>(null);
 
@@ -64,10 +66,10 @@ function AuthenticationProvider<
 		}, 
 		_setAuthentication
 	] = useState<AuthenticationState<U, P>>(() => {
-		const token = authenticationData.token;
-		const refreshToken = authenticationData.refreshToken;
-		const user = authenticationData.user ? authenticationData.user : new BaseUser() as U;
-		const permissions = authenticationData.permissions ? authenticationData.permissions : new BasePermissions() as P;
+		const token = sessionTokens.token;
+		const refreshToken = sessionTokens.refreshToken;
+		const user = authenticationData?.user ? authenticationData.user : new BaseUser() as U;
+		const permissions = authenticationData?.permissions ? authenticationData.permissions : new BasePermissions() as P;
 
 		_onToken(token, user, permissions)
 		
@@ -115,19 +117,13 @@ function AuthenticationProvider<
 		const loginAuth = await onLogin!(userNameOrEmail, password);
 
 		if ( loginAuth && loginAuth.token !== null ) {
-			let {
-				token, permissions, refreshToken, user 
-			} = loginAuth;
-			if ( !user ) {
-				const auth = await authentication.promise(token);
-				user = auth.user
-				refreshToken = refreshToken ?? auth.refreshToken
-				permissions = auth.permissions
-			}
+			const auth = await authentication.promise(token);
+			const user = auth.user
+			const permissions = auth.permissions
 
 			setAuthentication({
 				token,
-				refreshToken,
+				refreshToken: refreshTokenValue,
 				user: user ?? new BaseUser() as U,
 				permissions: permissions ?? new BasePermissions() as P
 			})
@@ -152,8 +148,8 @@ function AuthenticationProvider<
 			const auth = await authentication.promise(token);
 
 			setAuthentication({
-				token: auth.token,
-				refreshToken: auth.refreshToken ?? refreshToken,
+				token: token ?? null,
+				refreshToken,
 				user: auth.user ? auth.user : new BaseUser() as U,
 				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
@@ -162,16 +158,19 @@ function AuthenticationProvider<
 
 	const refreshToken = async (): Promise<boolean> => {
 		if ( onRefreshToken ) {
-			const authentication = await onRefreshToken(refreshTokenValue);
+			const refreshResult = await onRefreshToken(refreshTokenValue);
 
-			setAuthentication({
-				refreshToken: authentication.refreshToken,
-				token: authentication.token,
-				user: authentication.user ? authentication.user : new BaseUser() as U,
-				permissions: authentication.permissions ? authentication.permissions : new BasePermissions() as P
-			})
-				
-			if ( authentication.token ) {
+			if ( refreshResult ) {
+				const { token, refreshToken } = refreshResult;
+				const auth = await authentication.promise(token);
+
+				setAuthentication({
+					refreshToken,
+					token,
+					user: auth.user ? auth.user : new BaseUser() as U,
+					permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
+				})
+
 				return true;
 			}
 		}

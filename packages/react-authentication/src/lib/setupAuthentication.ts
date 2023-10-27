@@ -1,13 +1,16 @@
 import { type BasePermissions } from './models/BasePermissions';
 import { type BaseUser } from './models/BaseUser';
 
+export type SetupAuthenticationTokenType = {
+	token: string | null
+	refreshToken?: string | null
+}
+
 export type SetupAuthenticationType<
 	U extends BaseUser = BaseUser, 
 	P extends BasePermissions = BasePermissions
 > = {
-	token: string | null
 	permissions?: P
-	refreshToken?: string | null
 	user?: U
 }
 
@@ -36,7 +39,7 @@ export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissi
 	 */
 	getToken: () => Promise<string | null | undefined>
 	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P>>
-	read: () => SetupAuthenticationType<U, P>
+	read: () => [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]
 	/**
 	 * Sets refresh token from local storage (if storage is set)
 	 */
@@ -61,7 +64,7 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 	storage?: SetupAuthenticationStorage
 ): SetupAuthenticationReturn<U, P> => {
 	let status = 'pending';
-	let result: SetupAuthenticationType<U, P>;
+	let result: [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>];
 
 	const getToken = () => {
 		return Promise.resolve(storage?.getItem(STORAGE_TOKEN_KEY));
@@ -93,16 +96,19 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 		}
 	}
 
-	const _promise = async () => {
+	const _promise = async (): Promise<[SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]> => {
 		const [token, refreshToken] = await Promise.all([
 			getToken(),
 			getRefreshToken()
 		]);
 		
-		return {
-			...await promise(token),
-			refreshToken
-		}
+		return [
+			{
+				token: token ?? null,
+				refreshToken: refreshToken ?? null
+			},
+			await promise(token)
+		]
 	}
 
 	const suspend = _promise().then(
