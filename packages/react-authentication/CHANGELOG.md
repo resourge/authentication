@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.6.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.2...@resourge/react-authentication-v1.6.3) (2023-10-27)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix not saving the current token in localStorage ([6232e19](https://github.com/resourge/authentication/commit/6232e19d87b65051fde3f99a1f6f6036201bb913))
+
 # [@resourge/react-authentication-v1.6.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.1...@resourge/react-authentication-v1.6.2) (2023-10-27)
 
 
