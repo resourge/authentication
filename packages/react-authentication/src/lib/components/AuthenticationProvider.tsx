@@ -117,13 +117,14 @@ function AuthenticationProvider<
 		const loginAuth = await onLogin!(userNameOrEmail, password);
 
 		if ( loginAuth && loginAuth.token !== null ) {
-			const auth = await authentication.promise(loginAuth.token);
+			const { token, refreshToken } = loginAuth
+			const auth = await authentication.promise(token);
 			const user = auth.user
 			const permissions = auth.permissions
 
 			setAuthentication({
 				token,
-				refreshToken: loginAuth.refreshToken,
+				refreshToken,
 				user: user ?? new BaseUser() as U,
 				permissions: permissions ?? new BasePermissions() as P
 			})
