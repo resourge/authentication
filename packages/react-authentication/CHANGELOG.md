@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.7.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.3...@resourge/react-authentication-v1.7.0) (2023-10-30)
+
+
+### Features
+
+* **setupauthentication:** add token and refreshtoken to authentication ([196fb59](https://github.com/resourge/authentication/commit/196fb59e9200497b7af3e322cf8c4211071949c9))
+
 # [@resourge/react-authentication-v1.6.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.2...@resourge/react-authentication-v1.6.3) (2023-10-27)
 
 
