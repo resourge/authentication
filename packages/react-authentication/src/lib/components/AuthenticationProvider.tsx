@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react'
 
 import { AuthenticationContext, type AuthenticationContextType } from '../context/AuthenticationContext';
 import { PermissionsContext } from '../context/PermissionsContext';
 import { NoOnLoginError } from '../errors/NoOnLoginError';
+import { usePreventMultiple } from '../hooks/usePreventMultiple';
 import { BasePermissions } from '../models/BasePermissions';
 import { BaseUser } from '../models/BaseUser';
 import SessionService from '../services/SessionService';
@@ -35,14 +36,16 @@ type AuthenticationState<
 function AuthenticationProvider<
 	U extends BaseUser = BaseUser,
 	P extends BasePermissions = BasePermissions,
->({
-	children,
-	authentication, 
-	onRefreshToken,
-	onLogout,
-	onToken,
-	onLogin
-}: AuthenticationProviderProps<U, P>) {
+>(
+	{
+		children,
+		authentication, 
+		onRefreshToken,
+		onLogout,
+		onToken,
+		onLogin
+	}: AuthenticationProviderProps<U, P>
+) {
 	const [sessionTokens, authenticationData] = authentication ? authentication.read() : [
 		({
 			token: null 
@@ -107,7 +110,7 @@ function AuthenticationProvider<
 		}))
 	}
 
-	const login = async (userNameOrEmail: string, password: string): Promise<boolean> => {
+	const login = usePreventMultiple(async (userNameOrEmail: string, password: string): Promise<boolean> => {
 		if ( __DEV__ ) {
 			if ( !onLogin ) {
 				throw new NoOnLoginError()
@@ -133,13 +136,13 @@ function AuthenticationProvider<
 		}
 
 		return false;
-	}
+	})
 
 	const setAuthenticationError = (error: any) => {
 		setError(error)
 	}
 
-	const authenticate = async () => {
+	const authenticate = usePreventMultiple(async () => {
 		if ( authentication ) {
 			const [token, refreshToken] = await Promise.all([
 				authentication.getToken(),
@@ -155,30 +158,32 @@ function AuthenticationProvider<
 				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
 		}
-	}
+	})
 
-	const refreshToken = async (): Promise<boolean> => {
-		if ( onRefreshToken ) {
-			const refreshResult = await onRefreshToken(refreshTokenValue);
+	const refreshToken = usePreventMultiple(
+		async (): Promise<boolean> => {
+			if ( onRefreshToken ) {
+				const refreshResult = await onRefreshToken(refreshTokenValue);
 
-			if ( refreshResult ) {
-				const { token, refreshToken } = refreshResult;
-				const auth = await authentication.promise(token);
+				if ( refreshResult ) {
+					const { token, refreshToken } = refreshResult;
+					const auth = await authentication.promise(token);
 
-				setAuthentication({
-					token: token ?? auth.token ?? null,
-					refreshToken: refreshToken ?? auth.refreshToken,
-					user: auth.user ? auth.user : new BaseUser() as U,
-					permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
-				})
+					setAuthentication({
+						token: token ?? auth.token ?? null,
+						refreshToken: refreshToken ?? auth.refreshToken,
+						user: auth.user ? auth.user : new BaseUser() as U,
+						permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
+					})
 
-				return true;
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
-	}
+	)
 
-	const logout = async () => {
+	const logout = usePreventMultiple(async () => {
 		if ( onLogout ) {
 			await Promise.resolve(onLogout(token))
 		}
@@ -189,7 +194,7 @@ function AuthenticationProvider<
 			user: new BaseUser() as U,
 			permissions: new BasePermissions() as P
 		})
-	}
+	})
 
 	SessionService.authenticate = authenticate;
 	SessionService.refreshToken = refreshToken;
