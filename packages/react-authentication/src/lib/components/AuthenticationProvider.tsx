@@ -123,8 +123,8 @@ function AuthenticationProvider<
 			const permissions = auth.permissions
 
 			setAuthentication({
-				token,
-				refreshToken,
+				token: token ?? auth.token,
+				refreshToken: refreshToken ?? auth.refreshToken,
 				user: user ?? new BaseUser() as U,
 				permissions: permissions ?? new BasePermissions() as P
 			})
@@ -149,8 +149,8 @@ function AuthenticationProvider<
 			const auth = await authentication.promise(token);
 
 			setAuthentication({
-				token: token ?? null,
-				refreshToken,
+				token: token ?? auth.token ?? null,
+				refreshToken: refreshToken ?? auth.refreshToken,
 				user: auth.user ? auth.user : new BaseUser() as U,
 				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 			})
@@ -166,8 +166,8 @@ function AuthenticationProvider<
 				const auth = await authentication.promise(token);
 
 				setAuthentication({
-					refreshToken,
-					token,
+					token: token ?? auth.token ?? null,
+					refreshToken: refreshToken ?? auth.refreshToken,
 					user: auth.user ? auth.user : new BaseUser() as U,
 					permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
 				})

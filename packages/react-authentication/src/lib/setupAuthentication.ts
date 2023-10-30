@@ -38,7 +38,7 @@ export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissi
 	 * Gets token from local storage (if storage is set)
 	 */
 	getToken: () => Promise<string | null | undefined>
-	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P>>
+	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>
 	read: () => [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]
 	/**
 	 * Sets refresh token from local storage (if storage is set)
@@ -60,7 +60,7 @@ const STORAGE_REFRESH_TOKEN_KEY = '_ACR_'
  * @param storage optional Storage, by setting this object, "token" will be saved and used locally 
  */
 export const setupAuthentication = <U extends BaseUser, P extends BasePermissions>(
-	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P>>,
+	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>,
 	storage?: SetupAuthenticationStorage
 ): SetupAuthenticationReturn<U, P> => {
 	let status = 'pending';
@@ -101,13 +101,15 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 			getToken(),
 			getRefreshToken()
 		]);
+
+		const data = await promise(token)
 		
 		return [
 			{
-				token: token ?? null,
-				refreshToken: refreshToken ?? null
+				token: token ?? data.token ?? null,
+				refreshToken: refreshToken ?? data.refreshToken
 			},
-			await promise(token)
+			data
 		]
 	}
 
