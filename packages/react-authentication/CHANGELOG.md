@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.8.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.7.0...@resourge/react-authentication-v1.8.0) (2023-10-30)
+
+
+### Features
+
+* **authenticationprovider:** prevent the same function being called multiple times ([96423ee](https://github.com/resourge/authentication/commit/96423ee127349b9634b860561bbdaa774144779f))
+
 # [@resourge/react-authentication-v1.7.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.6.3...@resourge/react-authentication-v1.7.0) (2023-10-30)
 
 
