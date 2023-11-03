@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.8.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.0...@resourge/react-authentication-v1.8.1) (2023-11-03)
+
+
+### Bug Fixes
+
+* **sessionservice:** fix sessionService not working when setupAuthentication fails first ([19e8a1a](https://github.com/resourge/authentication/commit/19e8a1a49dd352f9d31abc1180c7d26bc1ab3e89))
+
 # [@resourge/react-authentication-v1.8.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.7.0...@resourge/react-authentication-v1.8.0) (2023-10-30)
 
 
