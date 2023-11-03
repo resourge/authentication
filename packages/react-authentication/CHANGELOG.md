@@ -1,3 +1,11 @@
+# [@resourge/react-authentication-v1.8.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.1...@resourge/react-authentication-v1.8.2) (2023-11-03)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** add user to previous commit ([f12a1f5](https://github.com/resourge/authentication/commit/f12a1f53def53928d1b2d5a6715d037f29618549))
+* **authenticationprovider:** await render after login, for navigation to pages that require session ([0016a0e](https://github.com/resourge/authentication/commit/0016a0e47fae5a62a8b86df6d3f4b377902e6530))
+
 # [@resourge/react-authentication-v1.8.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.0...@resourge/react-authentication-v1.8.1) (2023-11-03)
 
 
