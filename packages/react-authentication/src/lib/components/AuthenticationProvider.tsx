@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useEffect, useMemo, useState } from 'react'
+import {
+	useEffect,
+	useMemo,
+	useRef,
+	useState
+} from 'react'
 
 import { AuthenticationContext, type AuthenticationContextType } from '../context/AuthenticationContext';
 import { PermissionsContext } from '../context/PermissionsContext';
@@ -147,6 +152,14 @@ function AuthenticationProvider<
 		}))
 	}
 
+	const waitLoginRef = useRef<(value: boolean | PromiseLike<boolean>) => void>();
+	useEffect(() => {
+		if ( waitLoginRef.current ) {
+			waitLoginRef.current(true);
+			waitLoginRef.current = undefined;
+		}
+	}, [token]);
+
 	const login = usePreventMultiple(async (userNameOrEmail: string, password: string): Promise<boolean> => {
 		if ( __DEV__ ) {
 			if ( !onLogin ) {
@@ -169,7 +182,10 @@ function AuthenticationProvider<
 				permissions: permissions ?? new BasePermissions() as P
 			})
 
-			return true;
+			// This serves to await the render first, because of route navigation that required authentication
+			return await (new Promise((resolve) => {
+				waitLoginRef.current = resolve;
+			}))
 		}
 
 		return false;
