@@ -19,7 +19,7 @@ export type AuthenticationProviderProps<
 	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationTokenType>
 	onLogout?: (token: string | null) => Promise<void> | void
 
-	onRefreshToken?: (refreshToken?: string | null) => Promise<null | SetupAuthenticationTokenType>
+	onRefreshToken?: (token: string | null, refreshToken?: string | null) => Promise<null | SetupAuthenticationTokenType>
 	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
 } 
 
@@ -46,6 +46,43 @@ function AuthenticationProvider<
 		onLogin
 	}: AuthenticationProviderProps<U, P>
 ) {
+	SessionService.refreshToken = async () => {
+		if ( onRefreshToken ) {
+			try {
+				const [token, refreshToken] = await Promise.all([
+					authentication.getToken(),
+					authentication.getRefreshToken()
+				]);
+				const refreshResult = await onRefreshToken(token ?? null, refreshToken);
+
+				if ( refreshResult && refreshResult.token ) {
+					const { token } = refreshResult;
+					const auth = await authentication.promise(token);
+
+					onToken && onToken(
+						token ?? auth.token ?? null, 
+						auth.user ? auth.user : new BaseUser() as U, 
+						auth.permissions ? auth.permissions : new BasePermissions() as P
+					)
+
+					return true;
+				}
+			}
+			catch ( e ) {
+				return false;
+			}
+		}
+		return false;
+	};
+
+	SessionService.logout = async () => {
+		authentication.setRefreshToken(null);
+		authentication.setToken(null);
+		if ( onLogout ) {
+			await Promise.resolve(onLogout(token))
+		}
+	};
+
 	const [sessionTokens, authenticationData] = authentication ? authentication.read() : [
 		({
 			token: null 
@@ -160,34 +197,11 @@ function AuthenticationProvider<
 		}
 	})
 
-	const refreshToken = usePreventMultiple(
-		async (): Promise<boolean> => {
-			if ( onRefreshToken ) {
-				const refreshResult = await onRefreshToken(refreshTokenValue);
-
-				if ( refreshResult ) {
-					const { token, refreshToken } = refreshResult;
-					const auth = await authentication.promise(token);
-
-					setAuthentication({
-						token: token ?? auth.token ?? null,
-						refreshToken: refreshToken ?? auth.refreshToken,
-						user: auth.user ? auth.user : new BaseUser() as U,
-						permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
-					})
-
-					return true;
-				}
-			}
-			return false;
-		}
-	)
-
 	const logout = usePreventMultiple(async () => {
 		if ( onLogout ) {
 			await Promise.resolve(onLogout(token))
 		}
-		
+
 		setAuthentication({
 			refreshToken: undefined,
 			token: null,
@@ -195,6 +209,34 @@ function AuthenticationProvider<
 			permissions: new BasePermissions() as P
 		})
 	})
+
+	const refreshToken = usePreventMultiple(
+		async (): Promise<boolean> => {
+			if ( onRefreshToken ) {
+				try {
+					const refreshResult = await onRefreshToken(token, refreshTokenValue);
+
+					if ( refreshResult && refreshResult.token ) {
+						const { token, refreshToken } = refreshResult;
+						const auth = await authentication.promise(token);
+
+						setAuthentication({
+							token: token ?? auth.token ?? null,
+							refreshToken: refreshToken ?? auth.refreshToken,
+							user: auth.user ? auth.user : new BaseUser() as U,
+							permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
+						})
+
+						return true;
+					}
+				}
+				catch ( e ) {
+					return false;
+				}
+			}
+			return false;
+		}
+	)
 
 	SessionService.authenticate = authenticate;
 	SessionService.refreshToken = refreshToken;
