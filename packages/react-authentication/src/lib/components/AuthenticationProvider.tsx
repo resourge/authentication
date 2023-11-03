@@ -158,7 +158,7 @@ function AuthenticationProvider<
 			waitLoginRef.current(true);
 			waitLoginRef.current = undefined;
 		}
-	}, [token]);
+	}, [token, user]);
 
 	const login = usePreventMultiple(async (userNameOrEmail: string, password: string): Promise<boolean> => {
 		if ( __DEV__ ) {
