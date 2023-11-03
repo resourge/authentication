@@ -74,6 +74,8 @@ function AuthenticationProvider<
 				}
 			}
 			catch ( e ) {
+				authentication.setRefreshToken(null);
+				authentication.setToken(null);
 				return false;
 			}
 		}
