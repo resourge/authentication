@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.8.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.2...@resourge/react-authentication-v1.8.3) (2023-11-03)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** remove tokens from storage after refreshtoken fail ([4b22c89](https://github.com/resourge/authentication/commit/4b22c89a4c4677f98d920f2348a042be7f03d857))
+
 # [@resourge/react-authentication-v1.8.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.1...@resourge/react-authentication-v1.8.2) (2023-11-03)
 
 
