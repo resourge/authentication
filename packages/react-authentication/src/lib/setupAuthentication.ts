@@ -97,17 +97,19 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 	}
 
 	const _promise = async (): Promise<[SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]> => {
-		const [token, refreshToken] = await Promise.all([
+		const token = await getToken();
+
+		const data = await promise(token)
+
+		const [newToken, newRefreshToken] = await Promise.all([
 			getToken(),
 			getRefreshToken()
 		]);
-
-		const data = await promise(token)
 		
 		return [
 			{
-				token: token ?? data.token ?? null,
-				refreshToken: refreshToken ?? data.refreshToken
+				token: data.token ?? newToken ?? null,
+				refreshToken: data.refreshToken ?? newRefreshToken
 			},
 			data
 		]

@@ -64,6 +64,9 @@ function AuthenticationProvider<
 					const { token } = refreshResult;
 					const auth = await authentication.promise(token);
 
+					authentication.setRefreshToken(refreshResult.refreshToken);
+					authentication.setToken(refreshResult.token);
+
 					onToken && onToken(
 						token ?? auth.token ?? null, 
 						auth.user ? auth.user : new BaseUser() as U, 
