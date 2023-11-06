@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.8.4](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.3...@resourge/react-authentication-v1.8.4) (2023-11-06)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix refreshtoken not updating refreshtoken ([5f304e4](https://github.com/resourge/authentication/commit/5f304e4f01bb2bda2ba09862495d43d10555b51c))
+
 # [@resourge/react-authentication-v1.8.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.2...@resourge/react-authentication-v1.8.3) (2023-11-03)
 
 
