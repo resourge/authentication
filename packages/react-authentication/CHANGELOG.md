@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.8.5](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.4...@resourge/react-authentication-v1.8.5) (2023-11-07)
+
+
+### Bug Fixes
+
+* **setupauthentication:** fix authentication token not being correct after a refreshtoken ([1fb8b62](https://github.com/resourge/authentication/commit/1fb8b62b8257b0a23dac423507aa987b043fe3d5))
+
 # [@resourge/react-authentication-v1.8.4](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.3...@resourge/react-authentication-v1.8.4) (2023-11-06)
 
 
