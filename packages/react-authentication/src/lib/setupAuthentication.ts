@@ -108,8 +108,8 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 		
 		return [
 			{
-				token: data.token ?? newToken ?? null,
-				refreshToken: data.refreshToken ?? newRefreshToken
+				token: newToken ?? data.token ?? null,
+				refreshToken: newRefreshToken ?? data.refreshToken
 			},
 			data
 		]
