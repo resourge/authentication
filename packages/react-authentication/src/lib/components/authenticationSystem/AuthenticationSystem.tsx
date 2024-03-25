@@ -1,13 +1,12 @@
 import { Suspense } from 'react';
 
-import { type BasePermissions, type BaseUser } from '../models';
-
-import AuthenticationProvider, { type AuthenticationProviderProps } from './AuthenticationProvider';
-import ErrorBoundary, { type ErrorBoundaryProps } from './ErrorBoundary';
+import { type BasePermissionType, type BaseUserType } from '../../types';
+import AuthenticationProvider, { type AuthenticationProviderProps } from '../authenticationProvider/AuthenticationProvider';
+import ErrorBoundary, { type ErrorBoundaryProps } from '../errorBoundary/ErrorBoundary';
 
 export type AuthenticationSystemProps<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions
+	U extends BaseUserType = BaseUserType,
+	P extends BasePermissionType = BasePermissionType
 > = AuthenticationProviderProps<U, P>
 & ErrorBoundaryProps 
 & {
@@ -15,11 +14,11 @@ export type AuthenticationSystemProps<
 	 * In case loadingComponent is undefined, the "suspense" will continue in the Suspense Tree
 	 */
 	loadingComponent?: boolean | React.ReactElement | React.ReactFragment | React.ReactPortal | null
-}
+};
 
 function AuthenticationSystem<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions
+	U extends BaseUserType = BaseUserType,
+	P extends BasePermissionType = BasePermissionType
 >({
 	children,
 
@@ -32,7 +31,10 @@ function AuthenticationSystem<
 }: AuthenticationSystemProps<U, P>) {
 	return (
 		<Suspense fallback={loadingComponent ?? null}>
-			<ErrorBoundary errorComponent={errorComponent} onError={onError}>
+			<ErrorBoundary
+				errorComponent={errorComponent}
+				onError={onError}
+			>
 				<AuthenticationProvider
 					{...authenticationProviderProps}
 				>
@@ -45,4 +47,4 @@ function AuthenticationSystem<
 	);
 };
 
-export default AuthenticationSystem
+export default AuthenticationSystem;

@@ -14,12 +14,12 @@ export type ErrorBoundaryProps = {
 	 * After error will render children again
 	 */
 	redirectOnError?: boolean
-}
+};
 
 type ErrorBoundaryState = {
 	error?: any
 	hasError?: boolean
-}
+};
 
 export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	static getDerivedStateFromError(error: any) {
@@ -31,17 +31,17 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
 	state: ErrorBoundaryState = {
 		hasError: false
-	}
+	};
 
 	componentDidCatch(error: Error | any, errorInfo: ErrorInfo) {
-		this.props.onError && this.props.onError(error, errorInfo)
+		this.props.onError && this.props.onError(error, errorInfo);
 	}
 
 	componentDidUpdate() {
 		if ( this.state.hasError && this.props.redirectOnError ) {
 			this.setState({
 				hasError: false 
-			})
+			});
 		}
 	}
 
@@ -50,7 +50,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 			if ( this.props.errorComponent ) {
 				const errorComponent = this.props.errorComponent(this.state.error);
 				if ( !errorComponent ) {
-					throw this.state.error
+					throw this.state.error;
 				}
 
 				return (

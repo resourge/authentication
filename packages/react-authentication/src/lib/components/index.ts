@@ -1,6 +1,6 @@
-import AuthenticationProvider, { type AuthenticationProviderProps } from './AuthenticationProvider'
-import AuthenticationSystem, { type AuthenticationSystemProps } from './AuthenticationSystem'
-import ErrorBoundary, { type ErrorBoundaryProps } from './ErrorBoundary'
+import AuthenticationProvider, { type AuthenticationProviderProps } from './authenticationProvider/AuthenticationProvider';
+import AuthenticationSystem, { type AuthenticationSystemProps } from './authenticationSystem/AuthenticationSystem';
+import ErrorBoundary, { type ErrorBoundaryProps } from './errorBoundary/ErrorBoundary';
 
 export {
 	AuthenticationProvider,
@@ -11,4 +11,4 @@ export {
 
 	ErrorBoundary,
 	type ErrorBoundaryProps
-}
+};

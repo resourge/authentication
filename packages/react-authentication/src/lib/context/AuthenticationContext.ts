@@ -1,9 +1,10 @@
 import { createContext, useContext } from 'react';
 
 import { NoContextError } from '../errors/NoContextError';
-import { type BaseUser } from '../models/BaseUser';
+import { type BaseUserType } from '../types/BaseUser';
+import { IS_DEV } from '../utils/constants';
 
-export type AuthenticationContextType<U extends BaseUser = any> = {
+export type AuthenticationContextType<U extends BaseUserType = any> = {
 	/**
 	 * Initial method, where token calls backend using token to get user "profile"
 	 */
@@ -36,7 +37,7 @@ export type AuthenticationContextType<U extends BaseUser = any> = {
 	 * User instance
 	 */
 	user: U
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 export const AuthenticationContext = createContext<AuthenticationContextType>(null!);
@@ -44,17 +45,17 @@ export const AuthenticationContext = createContext<AuthenticationContextType>(nu
 /**
  * Hook to access AuthenticationContext context
  */
-export const useAuthenticationContext = <U extends BaseUser = BaseUser>(): AuthenticationContextType<U> => {
+export const useAuthenticationContext = <U extends BaseUserType = BaseUserType>(): AuthenticationContextType<U> => {
 	const context = useContext(AuthenticationContext);
 
-	if ( __DEV__ ) {
+	if ( IS_DEV ) {
 		if ( !context ) {
 			throw new NoContextError(
 				'useAuthenticationContext',
 				'AuthenticationContext'
-			)
+			);
 		}
 	}
 
 	return context as AuthenticationContextType<U>;
-}
+};

@@ -4,20 +4,22 @@ import {
 	useMemo,
 	useRef,
 	useState
-} from 'react'
+} from 'react';
 
-import { AuthenticationContext, type AuthenticationContextType } from '../context/AuthenticationContext';
-import { PermissionsContext } from '../context/PermissionsContext';
-import { NoOnLoginError } from '../errors/NoOnLoginError';
-import { usePreventMultiple } from '../hooks/usePreventMultiple';
-import { BasePermissions } from '../models/BasePermissions';
-import { BaseUser } from '../models/BaseUser';
-import SessionService from '../services/SessionService';
-import { type SetupAuthenticationTokenType, type SetupAuthenticationReturn } from '../setupAuthentication';
+import { AuthenticationContext, type AuthenticationContextType } from '../../context/AuthenticationContext';
+import { PermissionsContext } from '../../context/PermissionsContext';
+import { NoOnLoginError } from '../../errors/NoOnLoginError';
+import { usePreventMultiple } from '../../hooks/usePreventMultiple';
+import { useStorageEvent } from '../../hooks/useStorageEvent';
+import SessionService from '../../services/SessionService';
+import { type SetupAuthenticationReturn, type SetupAuthenticationTokenType } from '../../setupAuthentication';
+import { type BasePermissionType } from '../../types/BasePermissionType';
+import { type BaseUserType } from '../../types/BaseUser';
+import { IS_DEV } from '../../utils/constants';
 
 export type AuthenticationProviderProps<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions,
+	U extends BaseUserType = BaseUserType,
+	P extends BasePermissionType = BasePermissionType
 > = {
 	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
@@ -26,21 +28,21 @@ export type AuthenticationProviderProps<
 
 	onRefreshToken?: (token: string | null, refreshToken?: string | null) => Promise<null | SetupAuthenticationTokenType>
 	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
-} 
+}; 
 
 type AuthenticationState<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions,
+	U extends BaseUserType = BaseUserType,
+	P extends BasePermissionType = BasePermissionType
 > = {
 	permissions: P
 	token: string | null
 	user: U
 	refreshToken?: string | null
-}
+};
 
 function AuthenticationProvider<
-	U extends BaseUser = BaseUser,
-	P extends BasePermissions = BasePermissions,
+	U extends BaseUserType = BaseUserType,
+	P extends BasePermissionType = BasePermissionType
 >(
 	{
 		children,
@@ -69,9 +71,9 @@ function AuthenticationProvider<
 
 					onToken && onToken(
 						token ?? auth.token ?? null, 
-						auth.user ? auth.user : new BaseUser() as U, 
-						auth.permissions ? auth.permissions : new BasePermissions() as P
-					)
+						auth.user ? auth.user : {} as U, 
+						auth.permissions ? auth.permissions : {} as P
+					);
 
 					return true;
 				}
@@ -89,7 +91,7 @@ function AuthenticationProvider<
 		authentication.setRefreshToken(null);
 		authentication.setToken(null);
 		if ( onLogout ) {
-			await Promise.resolve(onLogout(token))
+			await Promise.resolve(onLogout(token));
 		}
 	};
 
@@ -102,13 +104,13 @@ function AuthenticationProvider<
 	const [error, setError] = useState<any>(null);
 
 	if ( error ) {
-		throw error
+		throw error;
 	}
 
 	const _onToken = (token: string | null, user: U, permission: P) => {
 		authentication?.setToken(token);
-		onToken && onToken(token, user, permission)
-	}
+		onToken && onToken(token, user, permission);
+	};
 
 	const [
 		{
@@ -118,22 +120,24 @@ function AuthenticationProvider<
 	] = useState<AuthenticationState<U, P>>(() => {
 		const token = sessionTokens.token;
 		const refreshToken = sessionTokens.refreshToken;
-		const user = authenticationData?.user ? authenticationData.user : new BaseUser() as U;
-		const permissions = authenticationData?.permissions ? authenticationData.permissions : new BasePermissions() as P;
+		const user = authenticationData?.user ? authenticationData.user : {} as U;
+		const permissions = authenticationData?.permissions ? authenticationData.permissions : {} as P;
 
-		_onToken(token, user, permissions)
+		_onToken(token, user, permissions);
 		
 		return {
 			refreshToken,
 			token,
 			user,
 			permissions
-		}
-	})
+		};
+	});
+
+	useStorageEvent();
 
 	const setUser = (userState: U | ((user: U) => void)) => {
 		let newUser = typeof userState === 'function' ? user : userState;
-		newUser = Object.assign(Object.create(Object.getPrototypeOf(newUser)), newUser)
+		newUser = Object.assign(Object.create(Object.getPrototypeOf(newUser) as object), newUser);
 
 		if ( typeof userState === 'function' ) {
 			userState(newUser);
@@ -144,18 +148,18 @@ function AuthenticationProvider<
 			token,
 			permissions,
 			user: newUser
-		})
-	}
+		});
+	};
 
 	const setAuthentication = (newAuthentication: AuthenticationState<U, P>) => {
 		if ( newAuthentication.token !== undefined ) {
-			_onToken(newAuthentication.token, newAuthentication.user, newAuthentication.permissions)
+			_onToken(newAuthentication.token, newAuthentication.user, newAuthentication.permissions);
 		}
 		_setAuthentication((oldAuthentication) => ({
 			...oldAuthentication,
 			...newAuthentication
-		}))
-	}
+		}));
+	};
 
 	const waitLoginRef = useRef<(value: boolean | PromiseLike<boolean>) => void>();
 	useEffect(() => {
@@ -166,39 +170,39 @@ function AuthenticationProvider<
 	}, [token, user]);
 
 	const login = usePreventMultiple(async (userNameOrEmail: string, password: string): Promise<boolean> => {
-		if ( __DEV__ ) {
+		if ( IS_DEV ) {
 			if ( !onLogin ) {
-				throw new NoOnLoginError()
+				throw new NoOnLoginError();
 			}
 		}
 
 		const loginAuth = await onLogin!(userNameOrEmail, password);
 
 		if ( loginAuth && loginAuth.token !== null ) {
-			const { token, refreshToken } = loginAuth
+			const { token, refreshToken } = loginAuth;
 			const auth = await authentication.promise(token);
-			const user = auth.user
-			const permissions = auth.permissions
+			const user = auth.user;
+			const permissions = auth.permissions;
 
 			setAuthentication({
 				token: token ?? auth.token,
 				refreshToken: refreshToken ?? auth.refreshToken,
-				user: user ?? new BaseUser() as U,
-				permissions: permissions ?? new BasePermissions() as P
-			})
+				user: user ?? {} as U,
+				permissions: permissions ?? {} as P
+			});
 
 			// This serves to await the render first, because of route navigation that required authentication
 			return await (new Promise((resolve) => {
 				waitLoginRef.current = resolve;
-			}))
+			}));
 		}
 
 		return false;
-	})
+	});
 
 	const setAuthenticationError = (error: any) => {
-		setError(error)
-	}
+		setError(error);
+	};
 
 	const authenticate = usePreventMultiple(async () => {
 		if ( authentication ) {
@@ -212,24 +216,24 @@ function AuthenticationProvider<
 			setAuthentication({
 				token: token ?? auth.token ?? null,
 				refreshToken: refreshToken ?? auth.refreshToken,
-				user: auth.user ? auth.user : new BaseUser() as U,
-				permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
-			})
+				user: auth.user ? auth.user : {} as U,
+				permissions: auth.permissions ? auth.permissions : {} as P
+			});
 		}
-	})
+	});
 
 	const logout = usePreventMultiple(async () => {
 		if ( onLogout ) {
-			await Promise.resolve(onLogout(token))
+			await Promise.resolve(onLogout(token));
 		}
 
 		setAuthentication({
 			refreshToken: undefined,
 			token: null,
-			user: new BaseUser() as U,
-			permissions: new BasePermissions() as P
-		})
-	})
+			user: {} as U,
+			permissions: {} as P
+		});
+	});
 
 	const refreshToken = usePreventMultiple(
 		async (): Promise<boolean> => {
@@ -244,9 +248,9 @@ function AuthenticationProvider<
 						setAuthentication({
 							token: token ?? auth.token ?? null,
 							refreshToken: refreshToken ?? auth.refreshToken,
-							user: auth.user ? auth.user : new BaseUser() as U,
-							permissions: auth.permissions ? auth.permissions : new BasePermissions() as P
-						})
+							user: auth.user ? auth.user : {} as U,
+							permissions: auth.permissions ? auth.permissions : {} as P
+						});
 
 						return true;
 					}
@@ -257,7 +261,7 @@ function AuthenticationProvider<
 			}
 			return false;
 		}
-	)
+	);
 
 	SessionService.authenticate = authenticate;
 	SessionService.refreshToken = refreshToken;
@@ -266,9 +270,9 @@ function AuthenticationProvider<
 	SessionService.login = login;
 
 	useEffect(() => {
-		authentication?.setRefreshToken(refreshTokenValue ?? null)
+		authentication?.setRefreshToken(refreshTokenValue ?? null);
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [refreshTokenValue])
+	}, [refreshTokenValue]);
 
 	const AuthContextValue: AuthenticationContextType<U> = useMemo(() => ({
 		user,
@@ -291,4 +295,4 @@ function AuthenticationProvider<
 	);
 };
 
-export default AuthenticationProvider
+export default AuthenticationProvider;

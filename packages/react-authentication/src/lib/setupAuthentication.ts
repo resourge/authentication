@@ -1,18 +1,19 @@
-import { type BasePermissions } from './models/BasePermissions';
-import { type BaseUser } from './models/BaseUser';
+import { type BasePermissionType } from './types/BasePermissionType';
+import { type BaseUserType } from './types/BaseUser';
+import { STORAGE_REFRESH_TOKEN_KEY, STORAGE_TOKEN_KEY } from './utils/constants';
 
 export type SetupAuthenticationTokenType = {
 	token: string | null
 	refreshToken?: string | null
-}
+};
 
 export type SetupAuthenticationType<
-	U extends BaseUser = BaseUser, 
-	P extends BasePermissions = BasePermissions
+	U extends BaseUserType = BaseUserType, 
+	P extends BasePermissionType = BasePermissionType
 > = {
 	permissions?: P
 	user?: U
-}
+};
 
 export type SetupAuthenticationStorage = {
 	/**
@@ -27,9 +28,9 @@ export type SetupAuthenticationStorage = {
 	 * Sets key from local storage
 	 */
 	setItem: (key: string, value: string) => Promise<void> | void
-}
+};
 
-export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissions> = {
+export type SetupAuthenticationReturn<U extends BaseUserType, P extends BasePermissionType> = {
 	/**
 	 * Gets refresh token from local storage (if storage is set)
 	 */
@@ -49,17 +50,14 @@ export type SetupAuthenticationReturn<U extends BaseUser, P extends BasePermissi
 	 */
 	setToken: (token: string | null | undefined) => void
 	storage?: SetupAuthenticationStorage
-}
-
-const STORAGE_TOKEN_KEY = '_AC_'
-const STORAGE_REFRESH_TOKEN_KEY = '_ACR_'
+};
 
 /**
  * Sets the start of the authentication system. 
  * @param promise First method called. It's called each time the user enters the website.
  * @param storage optional Storage, by setting this object, "token" will be saved and used locally 
  */
-export const setupAuthentication = <U extends BaseUser, P extends BasePermissions>(
+export const setupAuthentication = <U extends BaseUserType, P extends BasePermissionType>(
 	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>,
 	storage?: SetupAuthenticationStorage
 ): SetupAuthenticationReturn<U, P> => {
@@ -68,38 +66,38 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 
 	const getToken = () => {
 		return Promise.resolve(storage?.getItem(STORAGE_TOKEN_KEY));
-	}
+	};
 
 	const setToken = (token: string | null | undefined) => {
 		if ( storage && token !== undefined ) {
 			if ( token === null ) {
-				storage?.removeItem(STORAGE_TOKEN_KEY)
+				storage?.removeItem(STORAGE_TOKEN_KEY);
 				return;
 			}
 
-			storage?.setItem(STORAGE_TOKEN_KEY, token)
+			storage?.setItem(STORAGE_TOKEN_KEY, token);
 		}
-	}
+	};
 
 	const getRefreshToken = () => {
 		return Promise.resolve(storage?.getItem(STORAGE_REFRESH_TOKEN_KEY));
-	}
+	};
 
 	const setRefreshToken = (refreshToken: string | null | undefined) => {
 		if ( storage && refreshToken !== undefined ) {
 			if ( refreshToken === null ) {
-				storage?.removeItem(STORAGE_REFRESH_TOKEN_KEY)
+				storage?.removeItem(STORAGE_REFRESH_TOKEN_KEY);
 				return;
 			}
 
-			storage?.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken)
+			storage?.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken);
 		}
-	}
+	};
 
 	const _promise = async (): Promise<[SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]> => {
 		const token = await getToken();
 
-		const data = await promise(token)
+		const data = await promise(token);
 
 		const [newToken, newRefreshToken] = await Promise.all([
 			getToken(),
@@ -112,8 +110,8 @@ export const setupAuthentication = <U extends BaseUser, P extends BasePermission
 				refreshToken: newRefreshToken ?? data.refreshToken
 			},
 			data
-		]
-	}
+		];
+	};
 
 	const suspend = _promise().then(
 		(res) => {

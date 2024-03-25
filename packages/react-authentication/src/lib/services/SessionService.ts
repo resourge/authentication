@@ -26,7 +26,7 @@ class SessionService {
 	/**
 	 * Method to call in case there is a need for custom Authentication errors
 	 */
-	public setAuthenticationError = (error: Error) => { }
+	public setAuthenticationError = (error: Error) => { };
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export
