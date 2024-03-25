@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.9.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.5...@resourge/react-authentication-v1.9.0) (2024-03-25)
+
+
+### Features
+
+* **usestorageevent:** add storage eventlistener and fix for mobile ([65f4ae1](https://github.com/resourge/authentication/commit/65f4ae1175f514ede651c8ba5050ba975601a905))
+
 # [@resourge/react-authentication-v1.8.5](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.4...@resourge/react-authentication-v1.8.5) (2023-11-07)
 
 
