@@ -3,7 +3,7 @@ import { useRef } from 'react';
 export function usePreventMultiple<T extends any[], Result>(cb: (...args: T) => Promise<Result>) {
 	const preventMultipleRef = useRef<Promise<any> | undefined>(undefined);
 
-	return (...args: T) => {
+	return (...args: T): Promise<Result> => {
 		if ( preventMultipleRef.current ) {
 			return preventMultipleRef.current;
 		}

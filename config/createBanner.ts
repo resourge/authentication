@@ -21,12 +21,12 @@ function getBanner(libraryName: string, version: string, authorName: string, lic
 export function createBanner() {
 	const meta = {
 		...import.meta
-	}
-	const folderName = dirname(meta.url.replace('file://', ''))
+	};
+	const folderName = dirname(meta.url.replace('file://', ''));
 
 	const { name, version } = JSON.parse(
 		readFileSync(resolve(folderName, './package.json'), 'utf-8')
-	) as typeof PackageJson
+	) as typeof PackageJson;
 	
 	return getBanner(name, process.env.PROJECT_VERSION ?? version, author, license);
 }

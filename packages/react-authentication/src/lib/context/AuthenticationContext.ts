@@ -18,13 +18,13 @@ export type AuthenticationContextType<U extends BaseUserType = any> = {
 	 */
 	logout: () => Promise<void>
 	/**
-	 * Method to refresh current token
-	 */
-	refreshToken: () => Promise<boolean>
-	/**
 	 * Method to call in case there is a need for custom Authentication errors
 	 */
 	setAuthenticationError: (error: any) => void
+	/**
+	 * Method for manual custom login (ex: google, apple, etc)
+	 */
+	setToken: (token: string | null, refreshToken?: string | null | undefined) => Promise<boolean>
 	/**
 	 * To manually update user
 	 */

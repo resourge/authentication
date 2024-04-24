@@ -1,6 +1,7 @@
 import { type BasePermissionType } from './types/BasePermissionType';
 import { type BaseUserType } from './types/BaseUser';
 import { STORAGE_REFRESH_TOKEN_KEY, STORAGE_TOKEN_KEY } from './utils/constants';
+import { isJWTExpired } from './utils/jwt';
 
 export type SetupAuthenticationTokenType = {
 	token: string | null
@@ -32,24 +33,51 @@ export type SetupAuthenticationStorage = {
 
 export type SetupAuthenticationReturn<U extends BaseUserType, P extends BasePermissionType> = {
 	/**
-	 * Gets refresh token from local storage (if storage is set)
+	 * Function to getProfile
 	 */
-	getRefreshToken: () => Promise<string | null | undefined>
+	getProfile: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>
 	/**
-	 * Gets token from local storage (if storage is set)
+	 * Gets tokens from local storage (if storage is set)
 	 */
-	getToken: () => Promise<string | null | undefined>
-	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>
+	getTokens: () => Promise<{
+		refreshToken: string | null | undefined
+		token: string | null | undefined
+	}>
 	read: () => [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]
-	/**
-	 * Sets refresh token from local storage (if storage is set)
-	 */
-	setRefreshToken: (refreshToken: string | null | undefined) => void
 	/**
 	 * Sets token from local storage (if storage is set)
 	 */
-	setToken: (token: string | null | undefined) => void
+	setTokens: (token?: string | null, refreshToken?: string | null) => void
+	/**
+	 * Updates token and refresh token
+	 */
+	updateTokenRefreshToken: (token?: string | null, refreshToken?: string | null) => Promise<{
+		refreshToken: string | null | undefined
+		token: string | null | undefined
+	}>
+	/**
+	 * @default true
+	 */
+	useSuspense?: boolean
+};
+
+type SetupAuthenticationConfig<U extends BaseUserType, P extends BasePermissionType> = {
+	/**
+	 * Method to get user information
+	 */
+	getProfile: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>
+	/**
+	 * Method to refresh token when token is expired (works automatically with JWT exp)
+	 */
+	refreshToken: (token?: string | null, refreshTokenValue?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>
+	/**
+	 * If set, token will be stored
+	 */
 	storage?: SetupAuthenticationStorage
+	/**
+	 * @default true
+	 */
+	useSuspense?: boolean
 };
 
 /**
@@ -58,56 +86,82 @@ export type SetupAuthenticationReturn<U extends BaseUserType, P extends BasePerm
  * @param storage optional Storage, by setting this object, "token" will be saved and used locally 
  */
 export const setupAuthentication = <U extends BaseUserType, P extends BasePermissionType>(
-	promise: (token?: string | null) => Promise<SetupAuthenticationType<U, P> & Partial<SetupAuthenticationTokenType>>,
-	storage?: SetupAuthenticationStorage
+	config: SetupAuthenticationConfig<U, P>
 ): SetupAuthenticationReturn<U, P> => {
 	let status = 'pending';
 	let result: [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>];
 
-	const getToken = () => {
-		return Promise.resolve(storage?.getItem(STORAGE_TOKEN_KEY));
+	const getStorageTokens = () => {
+		const storage = config.storage;
+		return Promise.all([
+			Promise.resolve(storage?.getItem(STORAGE_TOKEN_KEY)),
+			Promise.resolve(storage?.getItem(STORAGE_REFRESH_TOKEN_KEY))
+		]);
 	};
 
-	const setToken = (token: string | null | undefined) => {
-		if ( storage && token !== undefined ) {
-			if ( token === null ) {
-				storage?.removeItem(STORAGE_TOKEN_KEY);
-				return;
-			}
+	const setTokens = async (
+		token: string | null | undefined,
+		refreshToken: string | null | undefined
+	) => {
+		const storage = config.storage;
+		const [tokenValue = null, refreshTokenValue = null] = await getStorageTokens();
 
-			storage?.setItem(STORAGE_TOKEN_KEY, token);
+		if ( storage ) {
+			if ( token !== undefined && tokenValue !== token ) {
+				if ( token === null ) {
+					storage?.removeItem(STORAGE_TOKEN_KEY);
+					return;
+				}
+
+				storage?.setItem(STORAGE_TOKEN_KEY, token);
+			}
+			if ( refreshToken !== undefined && refreshTokenValue !== refreshToken ) {
+				if ( refreshToken === null ) {
+					storage?.removeItem(STORAGE_REFRESH_TOKEN_KEY);
+					return;
+				}
+
+				storage?.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken);
+			}
 		}
 	};
 
-	const getRefreshToken = () => {
-		return Promise.resolve(storage?.getItem(STORAGE_REFRESH_TOKEN_KEY));
+	const updateTokenRefreshToken = async (
+		token?: string | null, 
+		refreshToken?: string | null
+	) => {
+		const newValues = await config.refreshToken(token, refreshToken);
+
+		setTokens(newValues.token, newValues.refreshToken);
+		
+		return {
+			token: newValues.token,
+			refreshToken: newValues.refreshToken
+		};
 	};
 
-	const setRefreshToken = (refreshToken: string | null | undefined) => {
-		if ( storage && refreshToken !== undefined ) {
-			if ( refreshToken === null ) {
-				storage?.removeItem(STORAGE_REFRESH_TOKEN_KEY);
-				return;
-			}
+	const getTokens = async () => {
+		const [tokenValue, refreshTokenValue] = await getStorageTokens();
 
-			storage?.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken);
+		if ( tokenValue && isJWTExpired(tokenValue) ) {
+			return await updateTokenRefreshToken(tokenValue, refreshTokenValue);
 		}
+
+		return {
+			token: tokenValue,
+			refreshToken: refreshTokenValue
+		};
 	};
 
 	const _promise = async (): Promise<[SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]> => {
-		const token = await getToken();
+		const { token, refreshToken } = await getTokens();
 
-		const data = await promise(token);
-
-		const [newToken, newRefreshToken] = await Promise.all([
-			getToken(),
-			getRefreshToken()
-		]);
+		const data = await config.getProfile(token);
 		
 		return [
 			{
-				token: newToken ?? data.token ?? null,
-				refreshToken: newRefreshToken ?? data.refreshToken
+				token: token ?? data.token ?? null,
+				refreshToken: refreshToken ?? data.refreshToken
 			},
 			data
 		];
@@ -125,7 +179,7 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 	);
 
 	return {
-		promise,
+		getProfile: config.getProfile,
 		read() {
 			if (status === 'pending') {
 				// eslint-disable-next-line @typescript-eslint/no-throw-literal
@@ -137,10 +191,9 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 			}
 			return result;
 		},
-		storage,
-		setToken,
-		getToken,
-		setRefreshToken,
-		getRefreshToken
+		setTokens,
+		getTokens,
+		updateTokenRefreshToken,
+		useSuspense: config.useSuspense ?? true
 	};
 };

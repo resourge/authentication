@@ -22,11 +22,20 @@ class SessionService {
 	 * Method to refresh current token
 	 */
 	public refreshToken = (): Promise<boolean> => Promise.resolve(false);
+
+	/**
+	 * Method for manual custom login (ex: google, apple, etc)
+	 */
+	public setToken = (token: string | null, refreshToken?: string | null | undefined): Promise<boolean> => Promise.resolve(false);
 	
 	/**
 	 * Method to call in case there is a need for custom Authentication errors
 	 */
 	public setAuthenticationError = (error: Error) => { };
+	/**
+	 * Method to get valid token (if expired it get the new version)
+	 */
+	public getToken = (): Promise<string | null | undefined> => Promise.resolve(undefined);
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export

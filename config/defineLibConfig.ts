@@ -1,11 +1,11 @@
-import deepmerge from '@fastify/deepmerge'
-import appRoot from 'app-root-path'
-import { readFileSync, readdirSync } from 'fs'
-import { globSync } from 'glob'
-import { join, resolve } from 'path'
-import { type UserConfigExport, defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
-import viteTsconfigPaths from 'vite-tsconfig-paths'
+import deepmerge from '@fastify/deepmerge';
+import appRoot from 'app-root-path';
+import { readFileSync, readdirSync } from 'fs';
+import { globSync } from 'glob';
+import { join, resolve } from 'path';
+import { type UserConfigExport, defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 import PackageJson from '../package.json';
 
@@ -23,10 +23,11 @@ export const getWorkspaces = () => {
 				withFileTypes: true 
 			}
 		)
-		.filter(dirent => dirent.isDirectory())
-		.map(dirent => join(root, dirent.name))
-	}).flat();
-}
+		.filter((dirent) => dirent.isDirectory())
+		.map((dirent) => join(root, dirent.name));
+	})
+	.flat();
+};
 
 const packages = getWorkspaces().map((workspace) => 
 	globSync(
@@ -76,16 +77,19 @@ export const defineLibConfig = (
 					'tsconfig-paths', 'typescript', 'path', 
 					'fs', 'vite', 'react', 'url',
 					'react/jsx-runtime',
-					'vue'
+					'vue',
+					'jwt-decode'
 				]
 			}
 		},
 		resolve: {
 			preserveSymlinks: true,
-			alias: originalConfig.mode === 'development' ? packages.reduce((obj, { name, path }) => {
-				obj[name] = resolve(path, `../${entryLib}`)
-				return obj;
-			}, {}) : {}
+			alias: originalConfig.mode === 'development' 
+				? packages.reduce((obj, { name, path }) => {
+					obj[name] = resolve(path as string, `../${entryLib}`);
+					return obj;
+				}, {}) 
+				: {}
 		},
 		plugins: [
 			viteTsconfigPaths(),
