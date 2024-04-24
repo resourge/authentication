@@ -60,12 +60,12 @@ function App() {
 
   return (
     <AuthenticationSystem
-	  authentication={authentication}
-	  // Custom Error Handling:
+      authentication={authentication}
+      // Custom Error Handling:
       onError={handleAuthenticationError}
-	  // Custom Loading Component:
+      // Custom Loading Component:
       loadingComponent={<LoadingSpinner />}
-	>
+    >
       {/* Your application components */}
     </AuthenticationSystem>
   );
@@ -107,10 +107,10 @@ const authentication = setupAuthentication({
 ### Parameters
 
 - `config`: An object containing configuration options for the authentication system.
-- `getProfile`: A function that retrieves the user profile based on the provided token.
-- `config`: Function that refreshes the authentication token.
-- `storage` (optional): An object with methods for accessing local storage. If provided, authentication tokens will be stored locally.
-- `useSuspense` (optional): Boolean indicating whether to use React Suspense for asynchronous loading. Use it if you want to show a different screen while waiting profile info. Defaults to true.
+	- `getProfile`: A function that retrieves the user profile based on the provided token.
+	- `refreshToken`: Function that refreshes the authentication token.
+	- `storage` (optional): An object with methods for accessing local storage. If provided, authentication tokens will be stored locally.
+	- `useSuspense` (optional): Boolean indicating whether to use React Suspense for asynchronous loading. Use it if you want to show a different screen while waiting profile info. Defaults to true.
 
 
 #### storage
@@ -361,7 +361,7 @@ In this example, if an error occurs within the `MyComponent`, the `ErrorBoundary
 
 ## Documentation
 
-For comprehensive documentation and usage examples, visit the [react-form documentation](https://resourge.vercel.app/docs/react-authentication/intro).
+For comprehensive documentation and usage examples, visit the [react-authentication documentation](https://resourge.vercel.app/docs/react-authentication/intro).
 
 ## Contributing
 
