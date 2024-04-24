@@ -40,7 +40,7 @@ import LoadingSpinner from './LoadingSpinner';
 // Setup authentication (call outside of components)
 const authentication = setupAuthentication(
   getProfile: async (token) => {
-	// Perform authentication logic here
+    // Perform authentication logic here
     return {
       user: { id: 123, username: 'example_user' },
       permissions: { admin: true }
