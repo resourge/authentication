@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.10.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.9.0...@resourge/react-authentication-v1.10.0) (2024-04-24)
+
+
+### Features
+
+* **authentication:** improve authentication, with auto token refresh and docs ([79c7a44](https://github.com/resourge/authentication/commit/79c7a4465e5cf557ee0095953a45d309e7e78507))
+
 # [@resourge/react-authentication-v1.9.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.8.5...@resourge/react-authentication-v1.9.0) (2024-03-25)
 
 
