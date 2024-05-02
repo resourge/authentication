@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.10.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.0...@resourge/react-authentication-v1.10.1) (2024-05-02)
+
+
+### Bug Fixes
+
+* **package:** add jwt-decode to dependencies ([859556b](https://github.com/resourge/authentication/commit/859556ba1e5dff31526bbbe5d078c99e40acbc6c))
+
 # [@resourge/react-authentication-v1.10.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.9.0...@resourge/react-authentication-v1.10.0) (2024-04-24)
 
 
