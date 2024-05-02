@@ -51,6 +51,33 @@ function AuthenticationProvider<
 		onLogin
 	}: AuthenticationProviderProps<U, P>
 ) {
+	SessionService.refreshToken = async () => {
+		try {
+			const { token, refreshToken } = await authentication.getTokens();
+			const refreshResult = await authentication.updateTokenRefreshToken(token ?? null, refreshToken);
+
+			if ( refreshResult && refreshResult.token ) {
+				const { token } = refreshResult;
+				const auth = await authentication.getProfile(token);
+
+				authentication.setTokens(refreshResult.token, refreshResult.refreshToken);
+
+				onToken && onToken(
+					auth.token ?? token ?? null, 
+					(auth.user ? auth.user : {}) as U, 
+					(auth.permissions ? auth.permissions : {}) as P
+				);
+
+				return true;
+			}
+			return false;
+		}
+		catch ( e ) {
+			authentication.setTokens(null, null);
+			return false;
+		}
+	};
+
 	SessionService.logout = async () => {
 		authentication.setTokens(null, null);
 		if ( onLogout ) {
