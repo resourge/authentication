@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.10.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.1...@resourge/react-authentication-v1.10.2) (2024-05-02)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** return refreshToken before component is created ([7f3abce](https://github.com/resourge/authentication/commit/7f3abce7819673de9b7828bb4c0eb2b50eb9ec13))
+
 # [@resourge/react-authentication-v1.10.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.0...@resourge/react-authentication-v1.10.1) (2024-05-02)
 
 
