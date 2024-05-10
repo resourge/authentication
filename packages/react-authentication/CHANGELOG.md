@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.10.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.2...@resourge/react-authentication-v1.10.3) (2024-05-10)
+
+
+### Bug Fixes
+
+* **setupauthentication:** prioritize getProfile token over storage ([c86051f](https://github.com/resourge/authentication/commit/c86051f752279d98e1ae5ae4ecd9506db0da650b))
+
 # [@resourge/react-authentication-v1.10.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.1...@resourge/react-authentication-v1.10.2) (2024-05-02)
 
 
