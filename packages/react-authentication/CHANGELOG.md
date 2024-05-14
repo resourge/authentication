@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.10.4](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.3...@resourge/react-authentication-v1.10.4) (2024-05-14)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix useSuspense false bugging sometimes ([79a95dd](https://github.com/resourge/authentication/commit/79a95dd14d730bb6055cac8ac706257451ac0f72))
+
 # [@resourge/react-authentication-v1.10.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.2...@resourge/react-authentication-v1.10.3) (2024-05-10)
 
 
