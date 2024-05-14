@@ -138,7 +138,7 @@ function AuthenticationProvider<
 					permissions
 				});
 			});
-		}, []);
+		}, [authentication]);
 	}
 
 	const _onToken = ({
