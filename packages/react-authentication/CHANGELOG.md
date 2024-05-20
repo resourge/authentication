@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.11.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.4...@resourge/react-authentication-v1.11.0) (2024-05-20)
+
+
+### Features
+
+* **authenticationprovider:** only refreshToken is it has internet ([478bd90](https://github.com/resourge/authentication/commit/478bd9057ceeed90ed6c71de99c7b89d1104faed))
+
 # [@resourge/react-authentication-v1.10.4](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.3...@resourge/react-authentication-v1.10.4) (2024-05-14)
 
 
