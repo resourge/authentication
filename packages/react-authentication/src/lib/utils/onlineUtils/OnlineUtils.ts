@@ -13,5 +13,5 @@ export const OnlineSubscribe = typeof globalThis.window !== 'undefined' && typeo
 	} : () => {
 		return () => {
 
-		}
-	}
+		};
+	};
