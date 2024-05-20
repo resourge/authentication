@@ -1,5 +1,6 @@
 import {
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState
@@ -8,9 +9,10 @@ import {
 import { AuthenticationContext, type AuthenticationContextType } from '../../context/AuthenticationContext';
 import { PermissionsContext } from '../../context/PermissionsContext';
 import { NoOnLoginError } from '../../errors/NoOnLoginError';
+import { useIsOnline } from '../../hooks/useIsOnline';
 import { usePreventMultiple } from '../../hooks/usePreventMultiple';
 import { useStorageEvent } from '../../hooks/useStorageEvent';
-import SessionService from '../../services/SessionService';
+import { SessionService } from '../../services/SessionService';
 import { type SetupAuthenticationType, type SetupAuthenticationReturn, type SetupAuthenticationTokenType } from '../../setupAuthentication';
 import { type BasePermissionType } from '../../types/BasePermissionType';
 import { type BaseUserType } from '../../types/BaseUser';
@@ -301,25 +303,29 @@ function AuthenticationProvider<
 	SessionService.refreshToken = refreshToken;
 	SessionService.getToken = getToken;
 
-	useEffect(() => {
-		let timeout: NodeJS.Timeout;
-		const expireIn = getExpInNumberFromJWT(token);
+	const isOnline = useIsOnline();
 
-		if ( expireIn ) {
-			if ( expireIn < Date.now() ) {
-				refreshToken();
-				return; 
-			}
+	useLayoutEffect(() => {
+		if ( isOnline ) {
+			let timeout: NodeJS.Timeout;
+			const expireIn = getExpInNumberFromJWT(token);
+
+			if ( expireIn ) {
+				if ( expireIn < Date.now() ) {
+					refreshToken();
+					return; 
+				}
 			
-			timeout = setTimeout(() => {
-				refreshToken();
-			}, expireIn - Date.now());
+				timeout = setTimeout(() => {
+					refreshToken();
+				}, expireIn - Date.now());
 
-			return () => {
-				clearTimeout(timeout);
-			};
+				return () => {
+					clearTimeout(timeout);
+				};
+			}
 		}
-	}, [token]);
+	}, [token, isOnline]);
 
 	const AuthContextValue: AuthenticationContextType<U> = useMemo(() => ({
 		user,

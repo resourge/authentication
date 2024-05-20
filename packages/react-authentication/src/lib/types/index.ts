@@ -1,7 +1,2 @@
-import { type BasePermissionType } from './BasePermissionType';
-import { type BaseUserType } from './BaseUser';
-
-export type {
-	BasePermissionType,
-	BaseUserType
-};
+export { type BasePermissionType } from './BasePermissionType';
+export { type BaseUserType } from './BaseUser';

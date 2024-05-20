@@ -1,35 +1,21 @@
-import {
+export { SessionService } from './services';
+export {
 	AuthenticationSystem,
 	type AuthenticationSystemProps,
 	ErrorBoundary,
 	type ErrorBoundaryProps
 } from './components';
-import {
+export {
 	useAuthenticationContext,
 	usePermissionsContext,
 	type AuthenticationContextType,
 	type PermissionsContextType
 } from './context';
-import { SessionService } from './services';
-import {
+export {
 	type SetupAuthenticationReturn,
 	type SetupAuthenticationStorage,
 	type SetupAuthenticationTokenType,
 	type SetupAuthenticationType,
 	setupAuthentication
 } from './setupAuthentication';
-import { type BasePermissionType, type BaseUserType } from './types';
-
-export {
-	AuthenticationSystem, type AuthenticationSystemProps, ErrorBoundary, type ErrorBoundaryProps,
-
-	type AuthenticationContextType, type PermissionsContextType,
-
-	useAuthenticationContext, usePermissionsContext,
-
-	type BasePermissionType, type BaseUserType,
-
-	SessionService,
-
-	type SetupAuthenticationReturn, type SetupAuthenticationStorage, type SetupAuthenticationTokenType, type SetupAuthenticationType, setupAuthentication
-};
+export { type BasePermissionType, type BaseUserType } from './types';
