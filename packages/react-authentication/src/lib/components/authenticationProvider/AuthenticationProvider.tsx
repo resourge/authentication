@@ -150,30 +150,10 @@ function AuthenticationProvider<
 		}, [authentication]);
 	}
 
-	const _getToken = usePreventMultiple(
-		async () => {
-			const expireIn = getExpInNumberFromJWT(token);
-
-			if ( expireIn && expireIn < Date.now() ) {
-				const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
-
-				if ( token !== newToken ) {
-					setBaseToken(newToken, newRefreshToken);
-				}
-
-				return newToken;
-			}
-
-			return token;
-		}, 
-		true
-	);
-
 	const _onToken = ({
 		permissions, token, user, refreshToken
 	}: AuthenticationState<U, P>) => {
 		authentication?.setTokens(token, refreshToken);
-		getToken && getToken(_getToken, user, permissions);
 		onToken && onToken(token, user, permissions);
 	};
 
@@ -317,12 +297,35 @@ function AuthenticationProvider<
 		}
 	});
 
+	const _getToken = usePreventMultiple(
+		async () => {
+			const expireIn = getExpInNumberFromJWT(token);
+
+			if ( expireIn && expireIn < Date.now() ) {
+				const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
+
+				if ( token !== newToken ) {
+					setBaseToken(newToken, newRefreshToken);
+				}
+
+				return newToken;
+			}
+
+			return token;
+		}, 
+		true
+	);
+
 	SessionService.authenticate = authenticate;
 	SessionService.logout = logout;
 	SessionService.setAuthenticationError = setAuthenticationError;
 	SessionService.login = login;
 	SessionService.refreshToken = refreshToken;
 	SessionService.getToken = _getToken;
+
+	useLayoutEffect(() => {
+		getToken && getToken(_getToken, user, permissions);
+	}, [token, user, permissions]);
 
 	useLayoutEffect(() => {
 		if ( isOnline ) {
