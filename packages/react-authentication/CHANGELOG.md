@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.12.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.11.0...@resourge/react-authentication-v1.12.0) (2024-05-22)
+
+
+### Features
+
+* **authenticationprovider:** add getToken to replace onToken ([347a1dc](https://github.com/resourge/authentication/commit/347a1dcc25494bd33c61bcefec4f89fcd2b7ad4a))
+
 # [@resourge/react-authentication-v1.11.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.10.4...@resourge/react-authentication-v1.11.0) (2024-05-20)
 
 
