@@ -156,7 +156,7 @@ const authenticationInstance = setupAuthentication({
   authentication={authenticationInstance}
   onLogin={handleLogin}
   onLogout={handleLogout}
-  onToken={handleToken}
+  getToken={handleToken}
   errorComponent={<ErrorComponent />}
   onError={handleError}
   redirectOnError={true}
@@ -170,7 +170,10 @@ const authenticationInstance = setupAuthentication({
 - `authentication` (required): An instance of `SetupAuthenticationReturn` representing the authentication setup and state. It includes the authentication token and refresh token, if available.
 - `onLogin`: A function to handle user login attempts. It receives the username or email and password as arguments and returns a promise that resolves to an authentication token.
 - `onLogout`: A function to handle user logout. It receives the current token as an argument and returns a promise or void.
-- `onToken`: A function to handle token updates. It receives the current token, user data, and permissions as arguments and returns a promise or void.
+- `getToken` (optional): A function to handle token updates. This function is useful for cases where you need to perform actions when the token is needed. It receives three arguments:
+	1. `getToken`: Function that returns a promise resolving to the current token (or null/undefined if not available).
+	2. `user`: User data.
+	3. `permission`: User permissions.
 - `errorComponent`: A React element or function to be displayed when an error occurs within the AuthenticationSystem component or its children.
 - `onError`: A function to handle errors that occur within the `AuthenticationSystem` component or its children. It receives the error and error info as arguments.
 - `redirectOnError`: A boolean indicating whether to render the children again after an error occurs.

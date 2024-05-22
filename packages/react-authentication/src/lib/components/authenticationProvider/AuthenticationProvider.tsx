@@ -25,9 +25,14 @@ export type AuthenticationProviderProps<
 > = {
 	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
+	getToken?: (getToken: () => Promise<string | null | undefined>, user: U, permission: P) => void
 	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationTokenType>
+
 	onLogout?: (token: string | null) => Promise<void> | void
 
+	/**
+	 * @deprecated In favor of getToken
+	 */
 	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
 }; 
 
@@ -50,7 +55,8 @@ function AuthenticationProvider<
 		authentication, 
 		onLogout,
 		onToken,
-		onLogin
+		onLogin,
+		getToken
 	}: AuthenticationProviderProps<U, P>
 ) {
 	SessionService.refreshToken = async () => {
@@ -97,6 +103,7 @@ function AuthenticationProvider<
 		];
 	
 	const [error, setError] = useState<any>(null);
+	const isOnline = useIsOnline();
 
 	if ( error ) {
 		throw error;
@@ -143,10 +150,30 @@ function AuthenticationProvider<
 		}, [authentication]);
 	}
 
+	const _getToken = usePreventMultiple(
+		async () => {
+			const expireIn = getExpInNumberFromJWT(token);
+
+			if ( expireIn && expireIn < Date.now() ) {
+				const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
+
+				if ( token !== newToken ) {
+					setBaseToken(newToken, newRefreshToken);
+				}
+
+				return newToken;
+			}
+
+			return token;
+		}, 
+		true
+	);
+
 	const _onToken = ({
 		permissions, token, user, refreshToken
 	}: AuthenticationState<U, P>) => {
 		authentication?.setTokens(token, refreshToken);
+		getToken && getToken(_getToken, user, permissions);
 		onToken && onToken(token, user, permissions);
 	};
 
@@ -228,7 +255,7 @@ function AuthenticationProvider<
 	const setToken = usePreventMultiple(async (token?: string | null, refreshToken?: string | null): Promise<boolean> => {
 		await setBaseToken(token, refreshToken);
 
-		// This serves to await the render first, because of route navigation that required authentication
+		// This serves to await the render first, because of route navigation that requires authentication
 		return await (new Promise((resolve) => {
 			waitLoginRef.current = resolve;
 		}));
@@ -272,12 +299,6 @@ function AuthenticationProvider<
 		await setBaseToken(null, null);
 	});
 
-	const getToken = usePreventMultiple(async () => {
-		const { token } = await authentication.getTokens();
-
-		return token;
-	});
-
 	const refreshToken = usePreventMultiple(async () => {
 		try {
 			const refreshResult = await authentication.updateTokenRefreshToken(token, refreshTokenValue);
@@ -301,9 +322,7 @@ function AuthenticationProvider<
 	SessionService.setAuthenticationError = setAuthenticationError;
 	SessionService.login = login;
 	SessionService.refreshToken = refreshToken;
-	SessionService.getToken = getToken;
-
-	const isOnline = useIsOnline();
+	SessionService.getToken = _getToken;
 
 	useLayoutEffect(() => {
 		if ( isOnline ) {
@@ -312,12 +331,12 @@ function AuthenticationProvider<
 
 			if ( expireIn ) {
 				if ( expireIn < Date.now() ) {
-					refreshToken();
+					_getToken();
 					return; 
 				}
 			
 				timeout = setTimeout(() => {
-					refreshToken();
+					_getToken();
 				}, expireIn - Date.now());
 
 				return () => {
