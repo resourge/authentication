@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.12.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.0...@resourge/react-authentication-v1.12.1) (2024-05-22)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix getToken not working as intended ([adf4958](https://github.com/resourge/authentication/commit/adf49589fc523750f3b425eef640e3e468bbab8b))
+
 # [@resourge/react-authentication-v1.12.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.11.0...@resourge/react-authentication-v1.12.0) (2024-05-22)
 
 
