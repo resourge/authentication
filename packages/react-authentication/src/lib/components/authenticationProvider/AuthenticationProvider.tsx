@@ -297,24 +297,15 @@ function AuthenticationProvider<
 		}
 	});
 
-	const _getToken = usePreventMultiple(
-		async () => {
-			const expireIn = getExpInNumberFromJWT(token);
+	const _getToken = usePreventMultiple(async () => {
+		const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
 
-			if ( expireIn && expireIn < Date.now() ) {
-				const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
+		if ( token !== newToken ) {
+			setBaseToken(newToken, newRefreshToken);
+		}
 
-				if ( token !== newToken ) {
-					setBaseToken(newToken, newRefreshToken);
-				}
-
-				return newToken;
-			}
-
-			return token;
-		}, 
-		true
-	);
+		return newToken;
+	});
 
 	SessionService.authenticate = authenticate;
 	SessionService.logout = logout;

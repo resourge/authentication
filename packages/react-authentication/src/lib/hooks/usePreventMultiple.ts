@@ -1,13 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
-export function usePreventMultiple<T extends any[], Result>(cb: (...args: T) => Promise<Result>, preventOnUseEffect?: boolean) {
+export function usePreventMultiple<T extends any[], Result>(cb: (...args: T) => Promise<Result>) {
 	const preventMultipleRef = useRef<Promise<any> | undefined>(undefined);
-
-	useEffect(() => {
-		if ( preventOnUseEffect ) {
-			preventMultipleRef.current = undefined;
-		}
-	});
 
 	return (...args: T): Promise<Result> => {
 		if ( preventMultipleRef.current ) {
@@ -16,9 +10,7 @@ export function usePreventMultiple<T extends any[], Result>(cb: (...args: T) => 
 		// eslint-disable-next-line n/no-callback-literal
 		preventMultipleRef.current = cb(...args)
 		.finally(() => {
-			if ( !preventOnUseEffect ) {
-				preventMultipleRef.current = undefined;
-			}
+			preventMultipleRef.current = undefined;
 		});
 
 		return preventMultipleRef.current;
