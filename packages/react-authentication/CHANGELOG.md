@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.12.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.1...@resourge/react-authentication-v1.12.2) (2024-05-22)
+
+
+### Bug Fixes
+
+* **usepreventmultiple:** remove preventOnUseEffect ([f9dc2e9](https://github.com/resourge/authentication/commit/f9dc2e99792140c5977c30efbaf41edeb484394d))
+
 # [@resourge/react-authentication-v1.12.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.0...@resourge/react-authentication-v1.12.1) (2024-05-22)
 
 
