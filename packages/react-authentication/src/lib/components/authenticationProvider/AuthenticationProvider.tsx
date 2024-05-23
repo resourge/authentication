@@ -153,8 +153,10 @@ function AuthenticationProvider<
 	const _onToken = ({
 		permissions, token, user, refreshToken
 	}: AuthenticationState<U, P>) => {
-		authentication?.setTokens(token, refreshToken);
 		onToken && onToken(token, user, permissions);
+		authentication?.setTokens(token, refreshToken);
+
+		getToken && getToken(_getToken, user, permissions);
 	};
 
 	const [
@@ -168,12 +170,14 @@ function AuthenticationProvider<
 		const user = authenticationData?.user ? authenticationData.user : {} as U;
 		const permissions = authenticationData?.permissions ? authenticationData.permissions : {} as P;
 
-		_onToken({
-			refreshToken,
-			token,
-			user,
-			permissions
-		});
+		if ( authentication.useSuspense ) {
+			_onToken({
+				refreshToken,
+				token,
+				user,
+				permissions
+			});
+		}
 		
 		return {
 			refreshToken,
@@ -301,7 +305,7 @@ function AuthenticationProvider<
 		const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
 
 		if ( token !== newToken ) {
-			setBaseToken(newToken, newRefreshToken);
+			await setBaseToken(newToken, newRefreshToken);
 		}
 
 		return newToken;
@@ -313,10 +317,6 @@ function AuthenticationProvider<
 	SessionService.login = login;
 	SessionService.refreshToken = refreshToken;
 	SessionService.getToken = _getToken;
-
-	useLayoutEffect(() => {
-		getToken && getToken(_getToken, user, permissions);
-	}, [token, user, permissions]);
 
 	useLayoutEffect(() => {
 		if ( isOnline ) {

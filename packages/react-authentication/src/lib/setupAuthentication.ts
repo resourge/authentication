@@ -47,7 +47,7 @@ export type SetupAuthenticationReturn<U extends BaseUserType, P extends BasePerm
 	/**
 	 * Sets token from local storage (if storage is set)
 	 */
-	setTokens: (token?: string | null, refreshToken?: string | null) => void
+	setTokens: (token?: string | null, refreshToken?: string | null) => Promise<void>
 	/**
 	 * Updates token and refresh token
 	 */
