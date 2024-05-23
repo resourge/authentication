@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.12.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.2...@resourge/react-authentication-v1.12.3) (2024-05-23)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix loosing token when not using useSuspense ([2d6faec](https://github.com/resourge/authentication/commit/2d6faec49d58e436b28f2615e53244995eeb9804))
+
 # [@resourge/react-authentication-v1.12.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.1...@resourge/react-authentication-v1.12.2) (2024-05-22)
 
 
