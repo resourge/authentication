@@ -9,6 +9,7 @@ import {
 import { AuthenticationContext, type AuthenticationContextType } from '../../context/AuthenticationContext';
 import { PermissionsContext } from '../../context/PermissionsContext';
 import { NoOnLoginError } from '../../errors/NoOnLoginError';
+import { useIsMounted } from '../../hooks/useIsMounted';
 import { useIsOnline } from '../../hooks/useIsOnline';
 import { usePreventMultiple } from '../../hooks/usePreventMultiple';
 import { useStorageEvent } from '../../hooks/useStorageEvent';
@@ -149,6 +150,18 @@ function AuthenticationProvider<
 			});
 		}, [authentication]);
 	}
+
+	const isMountedRef = useIsMounted();
+
+	const _getToken = usePreventMultiple(async () => {
+		const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
+
+		if ( isMountedRef.current && token !== newToken ) {
+			await setBaseToken(newToken, newRefreshToken);
+		}
+
+		return newToken;
+	});
 
 	const _onToken = ({
 		permissions, token, user, refreshToken
@@ -299,16 +312,6 @@ function AuthenticationProvider<
 		catch ( e ) {
 			return false;
 		}
-	});
-
-	const _getToken = usePreventMultiple(async () => {
-		const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
-
-		if ( token !== newToken ) {
-			await setBaseToken(newToken, newRefreshToken);
-		}
-
-		return newToken;
 	});
 
 	SessionService.authenticate = authenticate;
