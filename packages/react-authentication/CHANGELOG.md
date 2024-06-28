@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.12.5](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.4...@resourge/react-authentication-v1.12.5) (2024-06-28)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix getToken token is not saved in storage ([b8ad889](https://github.com/resourge/authentication/commit/b8ad8897a7f82575f611da7b7dfb08840b630797))
+
 # [@resourge/react-authentication-v1.12.4](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.3...@resourge/react-authentication-v1.12.4) (2024-06-05)
 
 
