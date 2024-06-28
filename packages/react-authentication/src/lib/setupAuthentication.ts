@@ -43,6 +43,7 @@ export type SetupAuthenticationReturn<U extends BaseUserType, P extends BasePerm
 		refreshToken: string | null | undefined
 		token: string | null | undefined
 	}>
+	hasStorage: boolean
 	read: () => [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]
 	/**
 	 * Sets token from local storage (if storage is set)
@@ -90,6 +91,8 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 ): SetupAuthenticationReturn<U, P> => {
 	let status = 'pending';
 	let result: [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>];
+
+	const hasStorage = Boolean(config.storage);
 
 	const getStorageTokens = () => {
 		const storage = config.storage;
@@ -194,6 +197,7 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 		setTokens,
 		getTokens,
 		updateTokenRefreshToken,
-		useSuspense: config.useSuspense ?? true
+		useSuspense: config.useSuspense ?? true,
+		hasStorage
 	};
 };

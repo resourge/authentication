@@ -18,7 +18,7 @@ import { type SetupAuthenticationType, type SetupAuthenticationReturn, type Setu
 import { type BasePermissionType } from '../../types/BasePermissionType';
 import { type BaseUserType } from '../../types/BaseUser';
 import { IS_DEV } from '../../utils/constants';
-import { getExpInNumberFromJWT } from '../../utils/jwt';
+import { getExpInNumberFromJWT, isJWTExpired } from '../../utils/jwt';
 
 export type AuthenticationProviderProps<
 	U extends BaseUserType = BaseUserType,
@@ -153,15 +153,18 @@ function AuthenticationProvider<
 
 	const isMountedRef = useIsMounted();
 
-	const _getToken = usePreventMultiple(async () => {
-		const { token: newToken, refreshToken: newRefreshToken } = await authentication.getTokens();
-
-		if ( isMountedRef.current && token !== newToken ) {
-			await setBaseToken(newToken, newRefreshToken);
+	const getStateToken = async (token: string | null, refreshToken: string | null | undefined) => {
+		if ( token && isJWTExpired(token) ) {
+			return await authentication.updateTokenRefreshToken(token, refreshToken);
 		}
 
-		return newToken;
-	});
+		return {
+			token,
+			refreshToken 
+		};
+	};
+
+	const _getToken = useRef<() => Promise<string | null | undefined>>(() => Promise.resolve(undefined));
 
 	const _onToken = ({
 		permissions, token, user, refreshToken
@@ -169,7 +172,17 @@ function AuthenticationProvider<
 		onToken && onToken(token, user, permissions);
 		authentication?.setTokens(token, refreshToken);
 
-		getToken && getToken(_getToken, user, permissions);
+		_getToken.current = async () => {
+			const { token: newToken, refreshToken: newRefreshToken } = await getStateToken(token, refreshToken);
+
+			if ( isMountedRef.current && token !== newToken ) {
+				await setBaseToken(newToken, newRefreshToken);
+			}
+
+			return newToken;
+		};
+
+		getToken && getToken(_getToken.current, user, permissions);
 	};
 
 	const [
@@ -282,9 +295,9 @@ function AuthenticationProvider<
 
 	const authenticate = usePreventMultiple(async () => {
 		if ( authentication ) {
-			const { token, refreshToken } = await authentication.getTokens();
+			const { token: newToken, refreshToken } = await getStateToken(token, refreshTokenValue);
 
-			await setToken(token, refreshToken);
+			await setToken(newToken, refreshToken);
 		}
 	});
 
@@ -319,7 +332,7 @@ function AuthenticationProvider<
 	SessionService.setAuthenticationError = setAuthenticationError;
 	SessionService.login = login;
 	SessionService.refreshToken = refreshToken;
-	SessionService.getToken = _getToken;
+	SessionService.getToken = _getToken.current;
 
 	useLayoutEffect(() => {
 		if ( isOnline ) {
@@ -328,12 +341,12 @@ function AuthenticationProvider<
 
 			if ( expireIn ) {
 				if ( expireIn < Date.now() ) {
-					_getToken();
+					_getToken.current();
 					return; 
 				}
 			
 				timeout = setTimeout(() => {
-					_getToken();
+					_getToken.current();
 				}, expireIn - Date.now());
 
 				return () => {
