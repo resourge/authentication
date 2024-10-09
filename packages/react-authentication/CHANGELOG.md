@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.12.6](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.5...@resourge/react-authentication-v1.12.6) (2024-10-09)
+
+
+### Bug Fixes
+
+* **setupauthentication:** fix setupauthentication not working when not using useSuspense in android ([2a79ab4](https://github.com/resourge/authentication/commit/2a79ab413096fdd7707bac38a816cad317c2235e))
+
 # [@resourge/react-authentication-v1.12.5](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.4...@resourge/react-authentication-v1.12.5) (2024-06-28)
 
 
