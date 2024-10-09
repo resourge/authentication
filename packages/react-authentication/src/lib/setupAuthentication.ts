@@ -32,6 +32,7 @@ export type SetupAuthenticationStorage = {
 };
 
 export type SetupAuthenticationReturn<U extends BaseUserType, P extends BasePermissionType> = {
+	close: () => void
 	/**
 	 * Function to getProfile
 	 */
@@ -170,7 +171,7 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 		];
 	};
 
-	const suspend = _promise().then(
+	const startPromise = () => _promise().then(
 		(res) => {
 			status = 'success';
 			result = res;
@@ -181,18 +182,24 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 		}
 	);
 
+	let suspend: Promise<void> | undefined = startPromise();
+
 	return {
 		getProfile: config.getProfile,
 		read() {
 			if (status === 'pending') {
 				// eslint-disable-next-line @typescript-eslint/no-throw-literal
-				throw suspend;
+				throw (suspend ?? startPromise());
 			}
 			else if (status === 'error') {
 				// eslint-disable-next-line @typescript-eslint/no-throw-literal
 				throw result;
 			}
 			return result;
+		},
+		close() {
+			status = 'pending';
+			suspend = undefined;
 		},
 		setTokens,
 		getTokens,

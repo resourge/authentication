@@ -148,6 +148,10 @@ function AuthenticationProvider<
 					permissions
 				});
 			});
+
+			return () => {
+				authentication.close();
+			};
 		}, [authentication]);
 	}
 
