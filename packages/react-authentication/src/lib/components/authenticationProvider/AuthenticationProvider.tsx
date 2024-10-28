@@ -69,7 +69,7 @@ function AuthenticationProvider<
 	});
 
 	const setTokens = (token: string | null = null, refreshToken?: string | null) => {
-		tokenRefs.current.token = token ?? null;
+		tokenRefs.current.token = token;
 		tokenRefs.current.refreshToken = refreshToken;
 	};
 
@@ -115,10 +115,12 @@ function AuthenticationProvider<
 
 				return true;
 			}
+			authentication.setTokens(null, null);
 			setTokens(null, null);
 			return false;
 		}
 		catch ( e ) {
+			authentication.setTokens(null, null);
 			setTokens(null, null);
 			return false;
 		}
