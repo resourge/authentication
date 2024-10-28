@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.6...@resourge/react-authentication-v1.13.0) (2024-10-28)
+
+
+### Features
+
+* **authenticationprovider:** add ignoreRefreshToken to getToken to try to prevent loops ([263b63c](https://github.com/resourge/authentication/commit/263b63cf0dec30a9309fd8f600f81c79b76bda20))
+
 # [@resourge/react-authentication-v1.12.6](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.5...@resourge/react-authentication-v1.12.6) (2024-10-09)
 
 
