@@ -34,6 +34,8 @@ export const SessionService = {
 	setAuthenticationError: (error: Error) => { },
 	/**
 	 * Method to get valid token (if expired it get the new version)
+	 * @param getToken
+ 	 * @important @param ignoreRefreshToken This is needed to make sure requests don't create loop
 	 */
-	getToken: (): Promise<string | null | undefined> => Promise.resolve(undefined)
+	getToken: (isRefreshTokenRequest: boolean): Promise<string | null | undefined> => Promise.resolve(undefined)
 };

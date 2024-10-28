@@ -9,16 +9,21 @@ import {
 import { AuthenticationContext, type AuthenticationContextType } from '../../context/AuthenticationContext';
 import { PermissionsContext } from '../../context/PermissionsContext';
 import { NoOnLoginError } from '../../errors/NoOnLoginError';
-import { useIsMounted } from '../../hooks/useIsMounted';
 import { useIsOnline } from '../../hooks/useIsOnline';
 import { usePreventMultiple } from '../../hooks/usePreventMultiple';
 import { useStorageEvent } from '../../hooks/useStorageEvent';
 import { SessionService } from '../../services/SessionService';
-import { type SetupAuthenticationType, type SetupAuthenticationReturn, type SetupAuthenticationTokenType } from '../../setupAuthentication';
+import { type SetupAuthenticationReturn, type SetupAuthenticationTokenType, type SetupAuthenticationType } from '../../setupAuthentication';
 import { type BasePermissionType } from '../../types/BasePermissionType';
 import { type BaseUserType } from '../../types/BaseUser';
 import { IS_DEV } from '../../utils/constants';
 import { getExpInNumberFromJWT, isJWTExpired } from '../../utils/jwt';
+
+/**
+ * @param ignoreRefreshToken 
+ * @important This is needed to make sure requests don't create loop
+ */
+export type GetTokenMethod = (ignoreRefreshToken: boolean) => Promise<string | null | undefined>;
 
 export type AuthenticationProviderProps<
 	U extends BaseUserType = BaseUserType,
@@ -26,15 +31,14 @@ export type AuthenticationProviderProps<
 > = {
 	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
-	getToken?: (getToken: () => Promise<string | null | undefined>, user: U, permission: P) => void
+	/**
+	 * @param getToken
+ 	 * @important @param ignoreRefreshToken This is needed to make sure requests don't create loop
+	 */
+	getToken?: (getToken: GetTokenMethod) => void
 	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationTokenType>
 
 	onLogout?: (token: string | null) => Promise<void> | void
-
-	/**
-	 * @deprecated In favor of getToken
-	 */
-	onToken?: (token: string | null, user: U, permission: P) => Promise<void> | void
 }; 
 
 type AuthenticationState<
@@ -55,39 +59,72 @@ function AuthenticationProvider<
 		children,
 		authentication, 
 		onLogout,
-		onToken,
 		onLogin,
 		getToken
 	}: AuthenticationProviderProps<U, P>
 ) {
+	const tokenRefs = useRef<{ token: string | null, refreshToken?: string | null }>({
+		token: null,
+		refreshToken: null
+	});
+
+	const setTokens = (token: string | null = null, refreshToken?: string | null) => {
+		tokenRefs.current.token = token ?? null;
+		tokenRefs.current.refreshToken = refreshToken;
+	};
+
+	const getStateToken = async (ignoreRefreshToken: boolean = false) => {
+		const { token, refreshToken } = tokenRefs.current;
+
+		if ( token && isJWTExpired(token) && !ignoreRefreshToken ) {
+			return await authentication.updateTokenRefreshToken(token, refreshToken);
+		}
+
+		return {
+			token,
+			refreshToken 
+		};
+	};
+
+	const _getToken = useRef<(ignoreRefreshToken: boolean) => Promise<string | null | undefined>>(async (ignoreRefreshToken: boolean) => {
+		const { token } = tokenRefs.current;
+
+		const { token: newToken, refreshToken: newRefreshToken } = await getStateToken(ignoreRefreshToken);
+
+		if ( token !== newToken ) {
+			await setBaseToken(newToken, newRefreshToken);
+		}
+
+		return newToken;
+	});
+
 	SessionService.refreshToken = async () => {
 		try {
 			const { token, refreshToken } = await authentication.getTokens();
+
+			setTokens(token, refreshToken);
+
 			const refreshResult = await authentication.updateTokenRefreshToken(token ?? null, refreshToken);
 
 			if ( refreshResult && refreshResult.token ) {
-				const { token } = refreshResult;
-				const auth = await authentication.getProfile(token);
+				const { token, refreshToken } = refreshResult;
 
-				authentication.setTokens(refreshResult.token, refreshResult.refreshToken);
-
-				onToken && onToken(
-					auth.token ?? token ?? null, 
-					(auth.user ? auth.user : {}) as U, 
-					(auth.permissions ? auth.permissions : {}) as P
-				);
+				setTokens(token, refreshToken);
+				
+				authentication.setTokens(token, refreshToken);
 
 				return true;
 			}
 			return false;
 		}
 		catch ( e ) {
-			authentication.setTokens(null, null);
+			setTokens(null, null);
 			return false;
 		}
 	};
 
 	SessionService.logout = async () => {
+		setTokens(null, null);
 		authentication.setTokens(null, null);
 		if ( onLogout ) {
 			await Promise.resolve(onLogout(token));
@@ -105,12 +142,13 @@ function AuthenticationProvider<
 	
 	const [error, setError] = useState<any>(null);
 	const isOnline = useIsOnline();
+	const canSetToken = useRef(authentication.useSuspense);
 
 	if ( error ) {
 		throw error;
 	}
 
-	if (!authentication.useSuspense ) {
+	if ( !authentication.useSuspense ) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useEffect(() => {
 			(
@@ -134,14 +172,10 @@ function AuthenticationProvider<
 				const refreshToken = sessionTokens.refreshToken;
 				const user = authenticationData?.user ? authenticationData.user : {} as U;
 				const permissions = authenticationData?.permissions ? authenticationData.permissions : {} as P;
-
-				_onToken({
-					refreshToken,
-					token,
-					user,
-					permissions
-				});
-				_setAuthentication({
+				canSetToken.current = true;
+				setTokens(token, refreshToken);
+		
+				setAuthentication({
 					refreshToken,
 					token,
 					user,
@@ -155,59 +189,20 @@ function AuthenticationProvider<
 		}, [authentication]);
 	}
 
-	const isMountedRef = useIsMounted();
-
-	const getStateToken = async (token: string | null, refreshToken: string | null | undefined) => {
-		if ( token && isJWTExpired(token) ) {
-			return await authentication.updateTokenRefreshToken(token, refreshToken);
-		}
-
-		return {
-			token,
-			refreshToken 
-		};
-	};
-
-	const _getToken = useRef<() => Promise<string | null | undefined>>(() => Promise.resolve(undefined));
-
-	const _onToken = ({
-		permissions, token, user, refreshToken
-	}: AuthenticationState<U, P>) => {
-		onToken && onToken(token, user, permissions);
-		authentication?.setTokens(token, refreshToken);
-
-		_getToken.current = async () => {
-			const { token: newToken, refreshToken: newRefreshToken } = await getStateToken(token, refreshToken);
-
-			if ( isMountedRef.current && token !== newToken ) {
-				await setBaseToken(newToken, newRefreshToken);
-			}
-
-			return newToken;
-		};
-
-		getToken && getToken(_getToken.current, user, permissions);
-	};
-
 	const [
 		{
 			token, user, permissions, refreshToken: refreshTokenValue
 		}, 
-		_setAuthentication
+		setAuthentication
 	] = useState<AuthenticationState<U, P>>(() => {
 		const token = sessionTokens.token;
 		const refreshToken = sessionTokens.refreshToken;
 		const user = authenticationData?.user ? authenticationData.user : {} as U;
 		const permissions = authenticationData?.permissions ? authenticationData.permissions : {} as P;
 
-		if ( authentication.useSuspense ) {
-			_onToken({
-				refreshToken,
-				token,
-				user,
-				permissions
-			});
-		}
+		setTokens(token, refreshToken);
+
+		getToken && getToken((ignoreRefreshToken) => _getToken.current(ignoreRefreshToken));
 		
 		return {
 			refreshToken,
@@ -227,22 +222,12 @@ function AuthenticationProvider<
 			userState(newUser);
 		}
 		
-		_setAuthentication({
+		setAuthentication({
 			refreshToken: refreshTokenValue,
 			token,
 			permissions,
 			user: newUser
 		});
-	};
-
-	const setAuthentication = (newAuthentication: AuthenticationState<U, P>) => {
-		if ( newAuthentication.token !== undefined ) {
-			_onToken(newAuthentication);
-		}
-		_setAuthentication((oldAuthentication) => ({
-			...oldAuthentication,
-			...newAuthentication
-		}));
 	};
 
 	const waitLoginRef = useRef<(value: boolean | PromiseLike<boolean>) => void>();
@@ -251,22 +236,31 @@ function AuthenticationProvider<
 			waitLoginRef.current(true);
 			waitLoginRef.current = undefined;
 		}
+		if ( canSetToken.current ) {
+			authentication.setTokens(token, refreshTokenValue);
+		}
 	}, [token, user]);
 
 	const setBaseToken = usePreventMultiple(async (token?: string | null, refreshToken?: string | null): Promise<void> => {
+		setTokens(token, refreshToken);
+
 		const auth = await authentication.getProfile(token);
 		const user = auth.user;
 		const permissions = auth.permissions;
+		const newToken = auth.token ?? token ?? null;
+		const newRefreshToken = auth.refreshToken ?? refreshToken;
+
+		setTokens(newToken, newRefreshToken);
 
 		setAuthentication({
-			token: auth.token ?? token ?? null,
-			refreshToken: auth.refreshToken ?? refreshToken,
+			token: newToken,
+			refreshToken: newRefreshToken,
 			user: user ?? {} as U,
 			permissions: permissions ?? {} as P
 		});
 	});
 
-	const setToken = usePreventMultiple(async (token?: string | null, refreshToken?: string | null): Promise<boolean> => {
+	const setAuthenticationToken = usePreventMultiple(async (token?: string | null, refreshToken?: string | null): Promise<boolean> => {
 		await setBaseToken(token, refreshToken);
 
 		// This serves to await the render first, because of route navigation that requires authentication
@@ -287,21 +281,19 @@ function AuthenticationProvider<
 
 		if ( loginAuth && loginAuth.token !== null ) {
 			const { token, refreshToken } = loginAuth;
-			return await setToken(token, refreshToken);
+			return await setAuthenticationToken(token, refreshToken);
 		}
 
 		return false;
 	});
 
-	const setAuthenticationError = (error: any) => {
-		setError(error);
-	};
+	const setAuthenticationError = (error: any) => setError(error);
 
 	const authenticate = usePreventMultiple(async () => {
 		if ( authentication ) {
-			const { token: newToken, refreshToken } = await getStateToken(token, refreshTokenValue);
+			const { token: newToken, refreshToken } = await getStateToken();
 
-			await setToken(newToken, refreshToken);
+			await setAuthenticationToken(newToken, refreshToken);
 		}
 	});
 
@@ -324,9 +316,11 @@ function AuthenticationProvider<
 
 				return true;
 			}
+			logout();
 			return false;
 		}
 		catch ( e ) {
+			logout();
 			return false;
 		}
 	});
@@ -345,12 +339,12 @@ function AuthenticationProvider<
 
 			if ( expireIn ) {
 				if ( expireIn < Date.now() ) {
-					_getToken.current();
+					_getToken.current(false);
 					return; 
 				}
 			
 				timeout = setTimeout(() => {
-					_getToken.current();
+					_getToken.current(false);
 				}, expireIn - Date.now());
 
 				return () => {
@@ -368,7 +362,7 @@ function AuthenticationProvider<
 		setAuthenticationError,
 		login,
 		setUser,
-		setToken
+		setToken: setAuthenticationToken
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}), [user, token]);
 

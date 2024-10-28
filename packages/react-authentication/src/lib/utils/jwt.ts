@@ -8,13 +8,18 @@ export function isJWT(token: string) {
 }
 
 export function getExpInNumberFromJWT(token?: string | null) {
-	if ( token && isJWT(token) ) {
-		const { exp } = jwtDecode(token);
+	try {
+		if ( token && isJWT(token) ) {
+			const { exp } = jwtDecode(token);
 
-		if ( exp ) {
+			if ( exp ) {
 			// Removes 1 minutes so it checks before
-			return exp * 1000 - (1 * 60 * 1000);
+				return exp * 1000 - (1 * 60 * 1000);
+			}
 		}
+	}
+	catch {
+		
 	}
 	return undefined;
 }
