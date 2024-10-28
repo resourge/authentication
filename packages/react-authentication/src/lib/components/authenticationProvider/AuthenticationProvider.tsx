@@ -115,6 +115,7 @@ function AuthenticationProvider<
 
 				return true;
 			}
+			setTokens(null, null);
 			return false;
 		}
 		catch ( e ) {
