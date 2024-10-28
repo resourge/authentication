@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.0...@resourge/react-authentication-v1.13.1) (2024-10-28)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** add setTokens to SessionService.refreshToken when fails ([15f86fa](https://github.com/resourge/authentication/commit/15f86fa27db9aa77b846e8e5fb7b2186be96a1ac))
+
 # [@resourge/react-authentication-v1.13.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.12.6...@resourge/react-authentication-v1.13.0) (2024-10-28)
 
 
