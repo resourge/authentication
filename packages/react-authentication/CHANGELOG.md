@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.1...@resourge/react-authentication-v1.13.2) (2024-10-28)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** if refreshToken fails clear token ([19d327e](https://github.com/resourge/authentication/commit/19d327eec2a65dcae3ed42c9d5abe8f3eacf7108))
+
 # [@resourge/react-authentication-v1.13.1](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.0...@resourge/react-authentication-v1.13.1) (2024-10-28)
 
 
