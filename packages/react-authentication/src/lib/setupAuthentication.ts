@@ -93,8 +93,6 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 	let status = 'pending';
 	let result: [SetupAuthenticationTokenType, SetupAuthenticationType<U, P>];
 
-	const hasStorage = Boolean(config.storage);
-
 	const getStorageTokens = () => Promise.all([
 		Promise.resolve(config.storage?.getItem(STORAGE_TOKEN_KEY)),
 		Promise.resolve(config.storage?.getItem(STORAGE_REFRESH_TOKEN_KEY))
@@ -192,6 +190,6 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 		getTokens,
 		updateTokenRefreshToken,
 		useSuspense: config.useSuspense ?? true,
-		hasStorage
+		hasStorage: Boolean(config.storage)
 	};
 };
