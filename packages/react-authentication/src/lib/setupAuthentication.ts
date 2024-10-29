@@ -95,69 +95,55 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 
 	const hasStorage = Boolean(config.storage);
 
-	const getStorageTokens = () => {
-		const storage = config.storage;
-		return Promise.all([
-			Promise.resolve(storage?.getItem(STORAGE_TOKEN_KEY)),
-			Promise.resolve(storage?.getItem(STORAGE_REFRESH_TOKEN_KEY))
-		]);
+	const getStorageTokens = () => Promise.all([
+		Promise.resolve(config.storage?.getItem(STORAGE_TOKEN_KEY)),
+		Promise.resolve(config.storage?.getItem(STORAGE_REFRESH_TOKEN_KEY))
+	]);
+
+	const handleStorageUpdate = (key: string, newValue: string | null | undefined, storedValue: string | null | undefined) => {
+		if (config.storage && newValue !== undefined && storedValue !== newValue) {
+			newValue === null ? config.storage.removeItem(key) : config.storage.setItem(key, newValue);
+		}
 	};
 
 	const setTokens = async (
 		token: string | null | undefined,
 		refreshToken: string | null | undefined
 	) => {
-		const storage = config.storage;
-		const [tokenValue = null, refreshTokenValue = null] = await getStorageTokens();
+		const [currentToken, currentRefreshToken] = await getStorageTokens();
 
-		if ( storage ) {
-			if ( token !== undefined && tokenValue !== token ) {
-				if ( token === null ) {
-					storage?.removeItem(STORAGE_TOKEN_KEY);
-					return;
-				}
-
-				storage?.setItem(STORAGE_TOKEN_KEY, token);
-			}
-			if ( refreshToken !== undefined && refreshTokenValue !== refreshToken ) {
-				if ( refreshToken === null ) {
-					storage?.removeItem(STORAGE_REFRESH_TOKEN_KEY);
-					return;
-				}
-
-				storage?.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken);
-			}
-		}
+		handleStorageUpdate(STORAGE_TOKEN_KEY, token, currentToken);
+		handleStorageUpdate(STORAGE_REFRESH_TOKEN_KEY, refreshToken, currentRefreshToken);
 	};
 
 	const updateTokenRefreshToken = async (
 		token?: string | null, 
 		refreshToken?: string | null
-	) => {
+	): Promise<{
+		refreshToken: string | null | undefined
+		token: string | null | undefined
+	}> => {
 		const newValues = await config.refreshToken(token, refreshToken);
 
 		setTokens(newValues.token, newValues.refreshToken);
 		
 		return {
-			token: newValues.token,
-			refreshToken: newValues.refreshToken
+			refreshToken: newValues.refreshToken,
+			token: newValues.token
 		};
 	};
 
 	const getTokens = async () => {
-		const [tokenValue, refreshTokenValue] = await getStorageTokens();
+		const [token, refreshToken] = await getStorageTokens();
 
-		if ( tokenValue && isJWTExpired(tokenValue) ) {
-			return await updateTokenRefreshToken(tokenValue, refreshTokenValue);
-		}
-
-		return {
-			token: tokenValue,
-			refreshToken: refreshTokenValue
-		};
+		return token && isJWTExpired(token) 
+			? await updateTokenRefreshToken(token, refreshToken) : {
+				token,
+				refreshToken
+			};
 	};
 
-	const _promise = async (): Promise<[SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]> => {
+	const fetchInitialData = async (): Promise<[SetupAuthenticationTokenType, SetupAuthenticationType<U, P>]> => {
 		const { token, refreshToken } = await getTokens();
 
 		const data = await config.getProfile(token);
@@ -171,16 +157,17 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 		];
 	};
 
-	const startPromise = () => _promise().then(
-		(res) => {
+	const startPromise = async () => {
+		try {
+			const res = await fetchInitialData();
 			status = 'success';
 			result = res;
-		},
-		(err) => {
-			status = 'error';
-			result = err;
 		}
-	);
+		catch (err) {
+			status = 'error';
+			result = err as any;
+		}
+	};
 
 	let suspend: Promise<void> | undefined = startPromise();
 

@@ -7,15 +7,15 @@ export function isJWT(token: string) {
 	return jwtRegex.test(token);
 }
 
+const MINUTE = 1 * 60 * 1000;
+
 export function getExpInNumberFromJWT(token?: string | null) {
 	try {
 		if ( token && isJWT(token) ) {
 			const { exp } = jwtDecode(token);
 
-			if ( exp ) {
 			// Removes 1 minutes so it checks before
-				return exp * 1000 - (1 * 60 * 1000);
-			}
+			return exp ? exp * 1000 - MINUTE : undefined;
 		}
 	}
 	catch {
@@ -27,9 +27,5 @@ export function getExpInNumberFromJWT(token?: string | null) {
 export function isJWTExpired(token: string) {
 	const expireIn = getExpInNumberFromJWT(token);
 
-	if ( expireIn && expireIn < Date.now() ) {
-		return true;
-	}
-
-	return false;
+	return expireIn ? expireIn < Date.now() : false;
 }

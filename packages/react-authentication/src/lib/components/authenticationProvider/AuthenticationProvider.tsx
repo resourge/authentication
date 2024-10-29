@@ -69,8 +69,10 @@ function AuthenticationProvider<
 	});
 
 	const setTokens = (token: string | null = null, refreshToken?: string | null) => {
-		tokenRefs.current.token = token;
-		tokenRefs.current.refreshToken = refreshToken;
+		tokenRefs.current = {
+			token,
+			refreshToken 
+		};
 	};
 
 	const getStateToken = async (ignoreRefreshToken: boolean = false) => {
@@ -87,16 +89,19 @@ function AuthenticationProvider<
 	};
 
 	const _getToken = useRef<(ignoreRefreshToken: boolean) => Promise<string | null | undefined>>(async (ignoreRefreshToken: boolean) => {
-		const { token } = tokenRefs.current;
-
 		const { token: newToken, refreshToken: newRefreshToken } = await getStateToken(ignoreRefreshToken);
 
-		if ( token !== newToken ) {
+		if ( tokenRefs.current.token !== newToken ) {
 			await setBaseToken(newToken, newRefreshToken);
 		}
 
 		return newToken;
 	});
+
+	const resetTokens = () => {
+		authentication.setTokens(null, null);
+		setTokens(null, null);
+	};
 
 	SessionService.refreshToken = async () => {
 		try {
@@ -115,23 +120,18 @@ function AuthenticationProvider<
 
 				return true;
 			}
-			authentication.setTokens(null, null);
-			setTokens(null, null);
+			resetTokens();
 			return false;
 		}
 		catch ( e ) {
-			authentication.setTokens(null, null);
-			setTokens(null, null);
+			resetTokens();
 			return false;
 		}
 	};
 
 	SessionService.logout = async () => {
-		setTokens(null, null);
-		authentication.setTokens(null, null);
-		if ( onLogout ) {
-			await Promise.resolve(onLogout(token));
-		}
+		resetTokens();
+		await onLogout?.(token);
 	};
 
 	const [sessionTokens, authenticationData] = authentication && authentication.useSuspense 
@@ -173,16 +173,14 @@ function AuthenticationProvider<
 			.then(([sessionTokens, authenticationData]) => {
 				const token = sessionTokens.token;
 				const refreshToken = sessionTokens.refreshToken;
-				const user = authenticationData?.user ? authenticationData.user : {} as U;
-				const permissions = authenticationData?.permissions ? authenticationData.permissions : {} as P;
 				canSetToken.current = true;
 				setTokens(token, refreshToken);
 		
 				setAuthentication({
 					refreshToken,
 					token,
-					user,
-					permissions
+					user: authenticationData?.user ? authenticationData.user : {} as U,
+					permissions: authenticationData?.permissions ? authenticationData.permissions : {} as P
 				});
 			});
 
@@ -200,8 +198,6 @@ function AuthenticationProvider<
 	] = useState<AuthenticationState<U, P>>(() => {
 		const token = sessionTokens.token;
 		const refreshToken = sessionTokens.refreshToken;
-		const user = authenticationData?.user ? authenticationData.user : {} as U;
-		const permissions = authenticationData?.permissions ? authenticationData.permissions : {} as P;
 
 		setTokens(token, refreshToken);
 
@@ -210,21 +206,14 @@ function AuthenticationProvider<
 		return {
 			refreshToken,
 			token,
-			user,
-			permissions
+			user: authenticationData?.user ? authenticationData.user : {} as U,
+			permissions: authenticationData?.permissions ? authenticationData.permissions : {} as P
 		};
 	});
 
 	useStorageEvent();
 
-	const setUser = (userState: U | ((user: U) => void)) => {
-		let newUser = typeof userState === 'function' ? user : userState;
-		newUser = Object.assign(Object.create(Object.getPrototypeOf(newUser) as object), newUser);
-
-		if ( typeof userState === 'function' ) {
-			userState(newUser);
-		}
-		
+	const setUser = (newUser: U) => {
 		setAuthentication({
 			refreshToken: refreshTokenValue,
 			token,
@@ -235,10 +224,8 @@ function AuthenticationProvider<
 
 	const waitLoginRef = useRef<(value: boolean | PromiseLike<boolean>) => void>();
 	useEffect(() => {
-		if ( waitLoginRef.current ) {
-			waitLoginRef.current(true);
-			waitLoginRef.current = undefined;
-		}
+		waitLoginRef.current?.(true);
+		waitLoginRef.current = undefined;
 		if ( canSetToken.current ) {
 			authentication.setTokens(token, refreshTokenValue);
 		}
@@ -248,8 +235,7 @@ function AuthenticationProvider<
 		setTokens(token, refreshToken);
 
 		const auth = await authentication.getProfile(token);
-		const user = auth.user;
-		const permissions = auth.permissions;
+
 		const newToken = auth.token ?? token ?? null;
 		const newRefreshToken = auth.refreshToken ?? refreshToken;
 
@@ -258,8 +244,8 @@ function AuthenticationProvider<
 		setAuthentication({
 			token: newToken,
 			refreshToken: newRefreshToken,
-			user: user ?? {} as U,
-			permissions: permissions ?? {} as P
+			user: auth.user ?? {} as U,
+			permissions: auth.permissions ?? {} as P
 		});
 	});
 
@@ -267,9 +253,7 @@ function AuthenticationProvider<
 		await setBaseToken(token, refreshToken);
 
 		// This serves to await the render first, because of route navigation that requires authentication
-		return await (new Promise((resolve) => {
-			waitLoginRef.current = resolve;
-		}));
+		return await new Promise((resolve) => waitLoginRef.current = resolve);
 	});
 
 	const login = usePreventMultiple(async (userNameOrEmail: string, password: string): Promise<boolean> => {
@@ -282,28 +266,17 @@ function AuthenticationProvider<
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const loginAuth = await onLogin!(userNameOrEmail, password);
 
-		if ( loginAuth && loginAuth.token !== null ) {
-			const { token, refreshToken } = loginAuth;
-			return await setAuthenticationToken(token, refreshToken);
-		}
-
-		return false;
+		return loginAuth?.token ? await setAuthenticationToken(loginAuth.token, loginAuth.refreshToken) : false;
 	});
 
-	const setAuthenticationError = (error: any) => setError(error);
-
 	const authenticate = usePreventMultiple(async () => {
-		if ( authentication ) {
-			const { token: newToken, refreshToken } = await getStateToken();
+		const { token: newToken, refreshToken } = await getStateToken();
 
-			await setAuthenticationToken(newToken, refreshToken);
-		}
+		await setAuthenticationToken(newToken, refreshToken);
 	});
 
 	const logout = usePreventMultiple(async () => {
-		if ( onLogout ) {
-			await Promise.resolve(onLogout(token));
-		}
+		await onLogout?.(token);
 
 		await setBaseToken(null, null);
 	});
@@ -313,16 +286,14 @@ function AuthenticationProvider<
 			const refreshResult = await authentication.updateTokenRefreshToken(token, refreshTokenValue);
 
 			if ( refreshResult && refreshResult.token ) {
-				const { token, refreshToken } = refreshResult;
-
-				await setBaseToken(token, refreshToken);
+				await setBaseToken(refreshResult.token, refreshResult.refreshToken);
 
 				return true;
 			}
 			logout();
 			return false;
 		}
-		catch ( e ) {
+		catch {
 			logout();
 			return false;
 		}
@@ -330,14 +301,13 @@ function AuthenticationProvider<
 
 	SessionService.authenticate = authenticate;
 	SessionService.logout = logout;
-	SessionService.setAuthenticationError = setAuthenticationError;
+	SessionService.setAuthenticationError = setError;
 	SessionService.login = login;
 	SessionService.refreshToken = refreshToken;
 	SessionService.getToken = _getToken.current;
 
 	useLayoutEffect(() => {
 		if ( isOnline ) {
-			let timeout: NodeJS.Timeout;
 			const expireIn = getExpInNumberFromJWT(token);
 
 			if ( expireIn ) {
@@ -346,13 +316,9 @@ function AuthenticationProvider<
 					return; 
 				}
 			
-				timeout = setTimeout(() => {
-					_getToken.current(false);
-				}, expireIn - Date.now());
+				const timeout = setTimeout(() => _getToken.current(false), expireIn - Date.now());
 
-				return () => {
-					clearTimeout(timeout);
-				};
+				return () => clearTimeout(timeout);
 			}
 		}
 	}, [token, isOnline]);
@@ -362,7 +328,7 @@ function AuthenticationProvider<
 		token,
 		authenticate,
 		logout,
-		setAuthenticationError,
+		setAuthenticationError: setError,
 		login,
 		setUser,
 		setToken: setAuthenticationToken
