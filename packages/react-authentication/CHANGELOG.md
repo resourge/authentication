@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.2...@resourge/react-authentication-v1.13.3) (2024-10-29)
+
+
+### Bug Fixes
+
+* **publish:** to trigger publish ([54e58f9](https://github.com/resourge/authentication/commit/54e58f909b27400bfd1dd2ad7eeb72ced73ec330))
+
 # [@resourge/react-authentication-v1.13.2](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.1...@resourge/react-authentication-v1.13.2) (2024-10-28)
 
 
