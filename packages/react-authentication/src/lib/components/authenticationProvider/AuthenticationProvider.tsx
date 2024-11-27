@@ -190,6 +190,8 @@ function AuthenticationProvider<
 		}, [authentication]);
 	}
 
+	getToken && getToken((ignoreRefreshToken) => _getToken.current(ignoreRefreshToken));
+
 	const [
 		{
 			token, user, permissions, refreshToken: refreshTokenValue
@@ -200,8 +202,6 @@ function AuthenticationProvider<
 		const refreshToken = sessionTokens.refreshToken;
 
 		setTokens(token, refreshToken);
-
-		getToken && getToken((ignoreRefreshToken) => _getToken.current(ignoreRefreshToken));
 		
 		return {
 			refreshToken,
