@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.4](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.3...@resourge/react-authentication-v1.13.4) (2024-11-27)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** put getToken in render instead of inside useState to fix hotreload ([7d38f2e](https://github.com/resourge/authentication/commit/7d38f2e43833e382a61ebe541ac5f0d1c001a2d9))
+
 # [@resourge/react-authentication-v1.13.3](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.2...@resourge/react-authentication-v1.13.3) (2024-10-29)
 
 
