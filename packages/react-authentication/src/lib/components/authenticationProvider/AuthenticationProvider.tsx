@@ -88,7 +88,7 @@ function AuthenticationProvider<
 		};
 	};
 
-	const _getToken = useRef<(ignoreRefreshToken: boolean) => Promise<string | null | undefined>>(async (ignoreRefreshToken: boolean) => {
+	const getTokenRef = useRef<(ignoreRefreshToken: boolean) => Promise<string | null | undefined>>(async (ignoreRefreshToken: boolean) => {
 		const { token: newToken, refreshToken: newRefreshToken } = await getStateToken(ignoreRefreshToken);
 
 		if ( tokenRefs.current.token !== newToken ) {
@@ -97,6 +97,8 @@ function AuthenticationProvider<
 
 		return newToken;
 	});
+
+	const _getToken = usePreventMultiple((ignoreRefreshToken: boolean) => getTokenRef.current(ignoreRefreshToken));
 
 	const resetTokens = () => {
 		authentication.setTokens(null, null);
@@ -190,7 +192,7 @@ function AuthenticationProvider<
 		}, [authentication]);
 	}
 
-	getToken && getToken((ignoreRefreshToken) => _getToken.current(ignoreRefreshToken));
+	getToken && getToken((ignoreRefreshToken) => _getToken(ignoreRefreshToken));
 
 	const [
 		{
@@ -304,7 +306,7 @@ function AuthenticationProvider<
 	SessionService.setAuthenticationError = setError;
 	SessionService.login = login;
 	SessionService.refreshToken = refreshToken;
-	SessionService.getToken = _getToken.current;
+	SessionService.getToken = (isRefreshTokenRequest) => _getToken(isRefreshTokenRequest);
 
 	useLayoutEffect(() => {
 		if ( isOnline ) {
@@ -312,11 +314,11 @@ function AuthenticationProvider<
 
 			if ( expireIn ) {
 				if ( expireIn < Date.now() ) {
-					_getToken.current(false);
+					_getToken(false);
 					return; 
 				}
 			
-				const timeout = setTimeout(() => _getToken.current(false), expireIn - Date.now());
+				const timeout = setTimeout(() => _getToken(false), expireIn - Date.now());
 
 				return () => clearTimeout(timeout);
 			}
