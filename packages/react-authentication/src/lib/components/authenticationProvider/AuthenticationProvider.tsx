@@ -88,7 +88,7 @@ function AuthenticationProvider<
 		};
 	};
 
-	const getTokenRef = useRef<(ignoreRefreshToken: boolean) => Promise<string | null | undefined>>(async (ignoreRefreshToken: boolean) => {
+	const _getToken = usePreventMultiple(async (ignoreRefreshToken: boolean) => {
 		const { token: newToken, refreshToken: newRefreshToken } = await getStateToken(ignoreRefreshToken);
 
 		if ( tokenRefs.current.token !== newToken ) {
@@ -97,8 +97,6 @@ function AuthenticationProvider<
 
 		return newToken;
 	});
-
-	const _getToken = usePreventMultiple((ignoreRefreshToken: boolean) => getTokenRef.current(ignoreRefreshToken));
 
 	const resetTokens = () => {
 		authentication.setTokens(null, null);
@@ -309,7 +307,7 @@ function AuthenticationProvider<
 	SessionService.getToken = (isRefreshTokenRequest) => _getToken(isRefreshTokenRequest);
 
 	useLayoutEffect(() => {
-		if ( isOnline ) {
+		if ( isOnline && canSetToken.current ) {
 			const expireIn = getExpInNumberFromJWT(token);
 
 			if ( expireIn ) {
