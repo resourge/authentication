@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.6](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.5...@resourge/react-authentication-v1.13.6) (2024-12-17)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** improve previous commit ([8e89a02](https://github.com/resourge/authentication/commit/8e89a028d4ec664e4bfa60923c4c56f3eee3d169))
+
 # [@resourge/react-authentication-v1.13.5](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.4...@resourge/react-authentication-v1.13.5) (2024-12-16)
 
 
