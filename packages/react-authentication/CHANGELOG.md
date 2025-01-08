@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.7](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.6...@resourge/react-authentication-v1.13.7) (2025-01-08)
+
+
+### Bug Fixes
+
+* **authenticationprovider:** fix useSuspense on error not working as intended ([c3efcb7](https://github.com/resourge/authentication/commit/c3efcb7f51d7657ea6206722796399db380b718a))
+
 # [@resourge/react-authentication-v1.13.6](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.5...@resourge/react-authentication-v1.13.6) (2024-12-17)
 
 
