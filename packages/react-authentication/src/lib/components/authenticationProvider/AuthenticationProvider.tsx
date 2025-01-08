@@ -182,6 +182,9 @@ function AuthenticationProvider<
 					user: authenticationData?.user ? authenticationData.user : {} as U,
 					permissions: authenticationData?.permissions ? authenticationData.permissions : {} as P
 				});
+			})
+			.catch((error) => {
+				setError(error);
 			});
 
 			return () => {
