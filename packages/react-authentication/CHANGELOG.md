@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.9](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.8...@resourge/react-authentication-v1.13.9) (2025-01-10)
+
+
+### Bug Fixes
+
+* **usestorageevent:** prevent multiple onStorageChanges from accuring ([8b8f420](https://github.com/resourge/authentication/commit/8b8f420901bd4707bfe8ee40b95430477b354421))
+
 # [@resourge/react-authentication-v1.13.8](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.7...@resourge/react-authentication-v1.13.8) (2025-01-10)
 
 
