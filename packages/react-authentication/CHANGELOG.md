@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.13.8](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.7...@resourge/react-authentication-v1.13.8) (2025-01-10)
+
+
+### Bug Fixes
+
+* **usestorageevent:** fix not updating tokens to new version but still doing the authentication ([b9dd899](https://github.com/resourge/authentication/commit/b9dd899cf2947a149eb36e66b386222ee42e84c2))
+
 # [@resourge/react-authentication-v1.13.7](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.6...@resourge/react-authentication-v1.13.7) (2025-01-08)
 
 
