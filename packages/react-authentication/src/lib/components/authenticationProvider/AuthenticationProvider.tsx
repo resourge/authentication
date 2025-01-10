@@ -107,13 +107,7 @@ function AuthenticationProvider<
 		try {
 			const { token, refreshToken } = await authentication.getTokens();
 
-			setTokens(token, refreshToken);
-
-			const refreshResult = await authentication.updateTokenRefreshToken(token ?? null, refreshToken);
-
-			if ( refreshResult && refreshResult.token ) {
-				const { token, refreshToken } = refreshResult;
-
+			if ( token ) {
 				setTokens(token, refreshToken);
 				
 				authentication.setTokens(token, refreshToken);
@@ -214,7 +208,18 @@ function AuthenticationProvider<
 		};
 	});
 
-	useStorageEvent();
+	useStorageEvent(async () => {
+		const { token, refreshToken } = await authentication.getTokens();
+
+		if ( 
+			tokenRefs.current.token !== token 
+			|| tokenRefs.current.refreshToken !== refreshToken 
+		) {
+			setTokens(token, refreshToken);
+
+			authenticate();
+		}
+	});
 
 	const setUser = (newUser: U) => {
 		setAuthentication({

@@ -135,7 +135,8 @@ export const setupAuthentication = <U extends BaseUserType, P extends BasePermis
 		const [token, refreshToken] = await getStorageTokens();
 
 		return token && isJWTExpired(token) 
-			? await updateTokenRefreshToken(token, refreshToken) : {
+			? await updateTokenRefreshToken(token, refreshToken) 
+			: {
 				token,
 				refreshToken
 			};

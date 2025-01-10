@@ -1,17 +1,16 @@
 import { useEffect } from 'react';
 
-import { SessionService } from '../services';
 import { StorageKeys } from '../utils/constants';
 
 export const useStorageEvent = globalThis.window && typeof globalThis.window.addEventListener !== 'undefined' 
-	? () => {
+	? (onStorageChange: () => void) => {
 		useEffect(() => {
 			const onStorage = (e: StorageEvent) => {
 				const {
 					key, newValue, oldValue 
 				} = e;
 				if (key && oldValue && StorageKeys.includes(key) && newValue !== oldValue) {
-					SessionService.authenticate();
+					onStorageChange();
 				}
 			};
 			window.addEventListener('storage', onStorage, true);
