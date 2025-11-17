@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.14.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.9...@resourge/react-authentication-v1.14.0) (2025-11-17)
+
+
+### Features
+
+* **login:** change login from 2 parameters to a custom single parameter ([614af2c](https://github.com/resourge/authentication/commit/614af2c03f2b9e069a852e1f415242a2248cf410))
+
 # [@resourge/react-authentication-v1.13.9](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.8...@resourge/react-authentication-v1.13.9) (2025-01-10)
 
 
