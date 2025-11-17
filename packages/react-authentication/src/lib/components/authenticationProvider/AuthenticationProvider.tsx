@@ -6,7 +6,7 @@ import {
 	useState
 } from 'react';
 
-import { AuthenticationContext, type AuthenticationContextType } from '../../context/AuthenticationContext';
+import { AuthenticationContext, type OnLoginParamType, type AuthenticationContextType } from '../../context/AuthenticationContext';
 import { PermissionsContext } from '../../context/PermissionsContext';
 import { NoOnLoginError } from '../../errors/NoOnLoginError';
 import { useIsOnline } from '../../hooks/useIsOnline';
@@ -27,7 +27,8 @@ export type GetTokenMethod = (ignoreRefreshToken: boolean) => Promise<string | n
 
 export type AuthenticationProviderProps<
 	U extends BaseUserType = BaseUserType,
-	P extends BasePermissionType = BasePermissionType
+	P extends BasePermissionType = BasePermissionType,
+	LU extends Record<string, any> = OnLoginParamType
 > = {
 	authentication: SetupAuthenticationReturn<U, P>
 	children?: React.ReactNode
@@ -36,7 +37,7 @@ export type AuthenticationProviderProps<
  	 * @important @param ignoreRefreshToken This is needed to make sure requests don't create loop
 	 */
 	getToken?: (getToken: GetTokenMethod) => void
-	onLogin?: (userNameOrEmail: string, password: string) => Promise<null | SetupAuthenticationTokenType>
+	onLogin?: (config: LU) => Promise<null | SetupAuthenticationTokenType>
 
 	onLogout?: (token: string | null) => Promise<void> | void
 }; 
@@ -53,7 +54,8 @@ type AuthenticationState<
 
 function AuthenticationProvider<
 	U extends BaseUserType = BaseUserType,
-	P extends BasePermissionType = BasePermissionType
+	P extends BasePermissionType = BasePermissionType,
+	LU extends Record<string, any> = OnLoginParamType
 >(
 	{
 		children,
@@ -61,7 +63,7 @@ function AuthenticationProvider<
 		onLogout,
 		onLogin,
 		getToken
-	}: AuthenticationProviderProps<U, P>
+	}: AuthenticationProviderProps<U, P, LU>
 ) {
 	const tokenRefs = useRef<{ token: string | null, refreshToken?: string | null }>({
 		token: null,
@@ -264,7 +266,7 @@ function AuthenticationProvider<
 		return await new Promise((resolve) => waitLoginRef.current = resolve);
 	});
 
-	const login = usePreventMultiple(async (userNameOrEmail: string, password: string): Promise<boolean> => {
+	const login = usePreventMultiple(async (config: LU): Promise<boolean> => {
 		if ( IS_DEV ) {
 			if ( !onLogin ) {
 				throw new NoOnLoginError();
@@ -272,7 +274,7 @@ function AuthenticationProvider<
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		const loginAuth = await onLogin!(userNameOrEmail, password);
+		const loginAuth = await onLogin!(config);
 
 		return loginAuth?.token ? await setAuthenticationToken(loginAuth.token, loginAuth.refreshToken) : false;
 	});
@@ -310,7 +312,7 @@ function AuthenticationProvider<
 	SessionService.authenticate = authenticate;
 	SessionService.logout = logout;
 	SessionService.setAuthenticationError = setError;
-	SessionService.login = login;
+	SessionService.login = login as (config: any) => Promise<boolean>;
 	SessionService.refreshToken = refreshToken;
 	SessionService.getToken = (isRefreshTokenRequest) => _getToken(isRefreshTokenRequest);
 
@@ -331,7 +333,7 @@ function AuthenticationProvider<
 		}
 	}, [token, isOnline]);
 
-	const AuthContextValue: AuthenticationContextType<U> = useMemo(() => ({
+	const AuthContextValue: AuthenticationContextType<U, LU> = useMemo(() => ({
 		user,
 		token,
 		authenticate,

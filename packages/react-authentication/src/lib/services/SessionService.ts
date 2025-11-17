@@ -1,4 +1,7 @@
 /* eslint-disable n/handle-callback-err */
+
+import { type OnLoginParamType } from '../context/AuthenticationContext';
+
 /**
  * SessionService serves to be able to call "Authentication" functions outside of the context and components 
  */
@@ -11,7 +14,7 @@ export const SessionService = {
 	/**
 	 * Method to call to login the user
 	 */
-	login: (userNameOrEmail: string, password: string): Promise<boolean> => Promise.resolve(false),
+	login: <T extends OnLoginParamType>(config: T): Promise<boolean> => Promise.resolve(false),
 
 	/**
 	 * Method to call when login out user

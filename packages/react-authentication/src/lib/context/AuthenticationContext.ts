@@ -4,7 +4,15 @@ import { NoContextError } from '../errors/NoContextError';
 import { type BaseUserType } from '../types/BaseUser';
 import { IS_DEV } from '../utils/constants';
 
-export type AuthenticationContextType<U extends BaseUserType = any> = {
+export type OnLoginParamType = {
+	email: string
+	password: string
+};
+
+export type AuthenticationContextType<
+	U extends BaseUserType = any,
+	LU extends Record<string, any> = any
+> = {
 	/**
 	 * Initial method, where token calls backend using token to get user "profile"
 	 */
@@ -12,7 +20,7 @@ export type AuthenticationContextType<U extends BaseUserType = any> = {
 	/**
 	 * Method to call to login the user
 	 */
-	login: (userNameOrEmail: string, password: string) => Promise<boolean>
+	login: (config: LU) => Promise<boolean>
 	/**
 	 * Method to call when login out user
 	 */
@@ -45,7 +53,10 @@ export const AuthenticationContext = createContext<AuthenticationContextType>(nu
 /**
  * Hook to access AuthenticationContext context
  */
-export const useAuthenticationContext = <U extends BaseUserType = BaseUserType>(): AuthenticationContextType<U> => {
+export const useAuthenticationContext = <
+	U extends BaseUserType = BaseUserType,
+	LU extends Record<string, any> = OnLoginParamType
+>(): AuthenticationContextType<U, LU> => {
 	const context = useContext(AuthenticationContext);
 
 	if ( IS_DEV ) {
@@ -57,5 +68,5 @@ export const useAuthenticationContext = <U extends BaseUserType = BaseUserType>(
 		}
 	}
 
-	return context as AuthenticationContextType<U>;
+	return context as AuthenticationContextType<U, LU>;
 };
