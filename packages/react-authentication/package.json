@@ -1,11 +1,11 @@
 {
 	"name": "@resourge/react-authentication",
-	"version": "1.14.0",
+	"version": "1.15.0",
 	"type": "module",
 	"devDependencies": {
 		"@types/react": "^18.0.28",
 		"@types/react-dom": "^18.0.11",
-    	"@vitejs/plugin-react": "^6.0.1",
+		"@vitejs/plugin-react": "^6.0.1",
 		"react": ">=18.0.0",
 		"react-dom": ">=18.0.0"
 	},

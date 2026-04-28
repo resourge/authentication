@@ -1,3 +1,10 @@
+# [@resourge/react-authentication-v1.15.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.14.0...@resourge/react-authentication-v1.15.0) (2026-04-28)
+
+
+### Features
+
+* **errors:** onError also triggering on errors from other sources like onLogin ([2cd8516](https://github.com/resourge/authentication/commit/2cd851665c30205a2e64ee216466b91434dcde3c))
+
 # [@resourge/react-authentication-v1.14.0](https://github.com/resourge/authentication/compare/@resourge/react-authentication-v1.13.9...@resourge/react-authentication-v1.14.0) (2025-11-17)
 
 
