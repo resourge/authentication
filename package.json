@@ -4,7 +4,6 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "postinstall": "patch-package",
     "commit": "git pull && git add . && git-cz",
     "lint": "eslint \"./**/src/**/*.{ts,tsx}\"",
     "lint:prod": "cross-env NODE_ENV=production npm run lint",
