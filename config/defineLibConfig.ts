@@ -11,7 +11,6 @@ import { globSync } from 'glob';
 import { dirname, join, resolve } from 'path';
 import { type UserConfigExport, defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 import PackageJson from '../package.json';
 
@@ -129,17 +128,9 @@ export const defineLibConfig = (
 			},
 			resolve: {
 				preserveSymlinks: true,
-				alias: originalConfig.mode === 'development' 
-					? packages.reduce((obj, { name, path }) => {
-						obj[name] = resolve(path as string, `../${entryLib}`);
-						return obj;
-					}, {}) 
-					: {
-						'use-sync-external-store/shim/index.js': 'react'
-					}
+				tsconfigPaths: true
 			},
 			plugins: [
-				viteTsconfigPaths(),
 				dts({
 					insertTypesEntry: true,
 					rollupTypes: true,

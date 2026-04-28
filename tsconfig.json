@@ -25,10 +25,7 @@
 			"src": [
 				"./src"
 			],
-			"*": ["./*"],
-			"@resourge/translations": [
-				"./packages/translations/src/lib/index.ts"
-			]
+			"*": ["./*"]
 		}
 	},
 	"include": [
@@ -39,5 +36,10 @@
 		"dist_old",
 		"./src/examples/**/*",
 		"./node_modules/**/*"
+	],
+	"references": [
+		{
+			"path": "./tsconfig.node.json"
+		}
 	]
 }
