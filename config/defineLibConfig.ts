@@ -128,7 +128,15 @@ export const defineLibConfig = (
 			},
 			resolve: {
 				preserveSymlinks: true,
-				tsconfigPaths: true
+				tsconfigPaths: true,
+				alias: originalConfig.mode === 'development' 
+					? packages.reduce((obj, { name, path }) => {
+						obj[name] = resolve(path as string, `../${entryLib}`);
+						return obj;
+					}, {}) 
+					: {
+						'use-sync-external-store/shim/index.js': 'react'
+					}
 			},
 			plugins: [
 				dts({
