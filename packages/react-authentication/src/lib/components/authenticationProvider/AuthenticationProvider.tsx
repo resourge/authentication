@@ -37,8 +37,9 @@ export type AuthenticationProviderProps<
  	 * @important @param ignoreRefreshToken This is needed to make sure requests don't create loop
 	 */
 	getToken?: (getToken: GetTokenMethod) => void
-	onLogin?: (config: LU) => Promise<null | SetupAuthenticationTokenType>
+	onError?: (error: any, errorInfo?: React.ErrorInfo) => void
 
+	onLogin?: (config: LU) => Promise<null | SetupAuthenticationTokenType>
 	onLogout?: (token: string | null) => Promise<void> | void
 }; 
 
@@ -62,7 +63,8 @@ function AuthenticationProvider<
 		authentication, 
 		onLogout,
 		onLogin,
-		getToken
+		getToken,
+		onError
 	}: AuthenticationProviderProps<U, P, LU>
 ) {
 	const tokenRefs = useRef<{ token: string | null, refreshToken?: string | null }>({
@@ -127,7 +129,14 @@ function AuthenticationProvider<
 
 	SessionService.logout = async () => {
 		resetTokens();
-		await onLogout?.(token);
+
+		try {
+			await onLogout?.(token);
+		}
+		catch ( error ) {
+			onError?.(error);
+			return await Promise.reject(error);
+		}
 	};
 
 	const [sessionTokens, authenticationData] = authentication && authentication.useSuspense 
@@ -244,19 +253,25 @@ function AuthenticationProvider<
 	const setBaseToken = usePreventMultiple(async (token?: string | null, refreshToken?: string | null): Promise<void> => {
 		setTokens(token, refreshToken);
 
-		const auth = await authentication.getProfile(token);
+		try {
+			const auth = await authentication.getProfile(token);
 
-		const newToken = auth.token ?? token ?? null;
-		const newRefreshToken = auth.refreshToken ?? refreshToken;
+			const newToken = auth.token ?? token ?? null;
+			const newRefreshToken = auth.refreshToken ?? refreshToken;
 
-		setTokens(newToken, newRefreshToken);
+			setTokens(newToken, newRefreshToken);
 
-		setAuthentication({
-			token: newToken,
-			refreshToken: newRefreshToken,
-			user: auth.user ?? {} as U,
-			permissions: auth.permissions ?? {} as P
-		});
+			setAuthentication({
+				token: newToken,
+				refreshToken: newRefreshToken,
+				user: auth.user ?? {} as U,
+				permissions: auth.permissions ?? {} as P
+			});
+		}
+		catch ( error ) {
+			onError?.(error);
+			return await Promise.reject(error);
+		}
 	});
 
 	const setAuthenticationToken = usePreventMultiple(async (token?: string | null, refreshToken?: string | null): Promise<boolean> => {
@@ -272,11 +287,20 @@ function AuthenticationProvider<
 				throw new NoOnLoginError();
 			}
 		}
+		try {
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			const loginAuth = await onLogin!(config);
 
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		const loginAuth = await onLogin!(config);
-
-		return loginAuth?.token ? await setAuthenticationToken(loginAuth.token, loginAuth.refreshToken) : false;
+			return (
+				loginAuth?.token 
+					? await setAuthenticationToken(loginAuth.token, loginAuth.refreshToken) 
+					: false
+			);
+		}
+		catch ( error ) {
+			onError?.(error);
+			return await Promise.reject(error);
+		}
 	});
 
 	const authenticate = usePreventMultiple(async () => {
@@ -286,7 +310,13 @@ function AuthenticationProvider<
 	});
 
 	const logout = usePreventMultiple(async () => {
-		await onLogout?.(token);
+		try {
+			await onLogout?.(token);
+		}
+		catch ( error ) {
+			onError?.(error);
+			return await Promise.reject(error);
+		}
 
 		await setBaseToken(null, null);
 	});
@@ -303,7 +333,8 @@ function AuthenticationProvider<
 			logout();
 			return false;
 		}
-		catch {
+		catch ( error ) {
+			onError?.(error);
 			logout();
 			return false;
 		}

@@ -37,6 +37,7 @@ function AuthenticationSystem<
 			>
 				<AuthenticationProvider
 					{...authenticationProviderProps}
+					onError={onError}
 				>
 					<Suspense fallback={loadingComponent ?? null}>
 						{ children }

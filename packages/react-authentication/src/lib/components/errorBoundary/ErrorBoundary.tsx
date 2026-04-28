@@ -9,7 +9,7 @@ export type ErrorBoundaryProps = {
 	/**
 	 * Method call on each error "ErrorBoundary" catch's.
 	 */
-	onError?: (error: any, errorInfo: ErrorInfo) => void
+	onError?: (error: any, errorInfo?: ErrorInfo) => void
 	/**
 	 * After error will render children again
 	 */
