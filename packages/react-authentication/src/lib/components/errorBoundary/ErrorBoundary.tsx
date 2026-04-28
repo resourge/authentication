@@ -1,5 +1,10 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
+type ErrorBoundaryState = {
+	error?: any
+	hasError?: boolean
+};
+
 export type ErrorBoundaryProps = {
 	children?: ReactNode
 	/**
@@ -16,24 +21,20 @@ export type ErrorBoundaryProps = {
 	redirectOnError?: boolean
 };
 
-type ErrorBoundaryState = {
-	error?: any
-	hasError?: boolean
-};
-
 export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-	static getDerivedStateFromError(error: any) {
-		return {
-			hasError: true,
-			error 
-		};
-	}
-
 	state: ErrorBoundaryState = {
 		hasError: false
 	};
 
-	componentDidCatch(error: Error | any, errorInfo: ErrorInfo) {
+	static getDerivedStateFromError(error: any) {
+		return {
+			error,
+			hasError: true 
+		};
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	componentDidCatch(error: any | Error, errorInfo: ErrorInfo) {
 		this.props.onError && this.props.onError(error, errorInfo);
 	}
 

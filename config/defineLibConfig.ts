@@ -1,15 +1,15 @@
 import deepmerge from '@fastify/deepmerge';
 import appRoot from 'app-root-path';
+import { globSync } from 'glob';
 import {
 	existsSync,
-	readFileSync,
 	readdirSync,
+	readFileSync,
 	statSync
-} from 'fs';
-import { readFile, writeFile } from 'fs/promises';
-import { globSync } from 'glob';
-import { dirname, join, resolve } from 'path';
-import { type UserConfigExport, defineConfig } from 'vite';
+} from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { defineConfig, type UserConfigExport } from 'vite';
 import dts from 'vite-plugin-dts';
 
 import PackageJson from '../package.json';
@@ -19,8 +19,8 @@ const { workspaces } = PackageJson;
 export const getWorkspaces = () => {
 	return workspaces
 	.filter((workspace) => !workspace.startsWith('!'))
-	.map((workspace) => {
-		const root = join(appRoot.path, workspace.substring(1).replace(/\*/g, ''));
+	.flatMap((workspace) => {
+		const root = path.join(appRoot.path, workspace.slice(1).replaceAll('*', ''));
 
 		return readdirSync(
 			root, 
@@ -29,26 +29,26 @@ export const getWorkspaces = () => {
 			}
 		)
 		.filter((dirent) => dirent.isDirectory())
-		.map((dirent) => join(root, dirent.name));
-	})
-	.flat();
+		.map((dirent) => path.join(root, dirent.name));
+	});
 };
 
-const packages = getWorkspaces().map((workspace) => 
+const packages = getWorkspaces().flatMap((workspace) => 
 	globSync(
 		`${workspace}/**`
 	)
-	.filter((path) => path.includes('package.json'))
+	.filter((filePath) => filePath.includes('package.json'))
 	.map((path) => ({
 		...JSON.parse(
-			readFileSync(path, 'utf-8')
+			readFileSync(path, 'utf8')
 		),
 		path
 	}) as const)
-)
-.flat();
+);
 
-const packagesNames = packages.map((pack) => pack.name);
+const packagesNames = packages
+.map((pack) => pack.name)
+.filter(Boolean);
 
 const entryLib = './src/lib/index.ts';
 
@@ -61,7 +61,7 @@ function getAllNativeAndNonNativeFiles(dir: string): string[] {
 		const allFiles = readdirSync(directory);
 
 		allFiles.forEach((file) => {
-			const fullPath = join(directory, file);
+			const fullPath = path.join(directory, file);
 			const stats = statSync(fullPath);
 
 			if (stats.isDirectory()) {
@@ -71,7 +71,7 @@ function getAllNativeAndNonNativeFiles(dir: string): string[] {
 			else if (file.includes('.native.')) {
 				// Add .native. file and its non-native counterpart if it exists
 				const baseName = file.replace('.native.', '.');
-				const nonNativeFile = join(directory, baseName);
+				const nonNativeFile = path.join(directory, baseName);
 
 				matchedFiles.add(fullPath);
 
@@ -89,32 +89,26 @@ function getAllNativeAndNonNativeFiles(dir: string): string[] {
 
 export const defineLibConfig = (
 	config: UserConfigExport,
-	afterBuild?: (() => void | Promise<void>)
+	afterBuild?: (() => Promise<void> | void)
 ): UserConfigExport => defineConfig((originalConfig) => {
-	const directoryPath = resolve(__dirname, '../packages/react-authentication/src/lib');
+	const directoryPath = path.resolve(__dirname, '../packages/react-authentication/src/lib');
 	const matchedFiles = getAllNativeAndNonNativeFiles(directoryPath);
 
 	return deepMerge(
-		typeof config === 'function' ? config(originalConfig) : config,
+		typeof config === 'function'
+			? config(originalConfig)
+			: config,
 		{
-			test: {
-				globals: true,
-				environment: 'jsdom',
-				setupFiles: './src/setupTests.ts'
-			},
 			build: {
-				minify: false,
 				lib: {
 					entry: [entryLib, ...matchedFiles],
-					name: 'index',
 					fileName: '[name]',
-					formats: ['es']
+					formats: ['es'],
+					name: 'index'
 				},
+				minify: false,
 				outDir: './dist',
 				rollupOptions: {
-					output: {
-						dir: './dist'
-					},
 					external: [
 						'tsconfig-paths', 'typescript', 'path', 
 						'fs', 'vite', 'react', 'url',
@@ -123,34 +117,23 @@ export const defineLibConfig = (
 						'vue',
 						'jwt-decode',
 						'@react-native-community/netinfo'
-					]
-				}
-			},
-			resolve: {
-				preserveSymlinks: true,
-				tsconfigPaths: true,
-				alias: originalConfig.mode === 'development' 
-					? packages.reduce((obj, { name, path }) => {
-						obj[name] = resolve(path as string, `../${entryLib}`);
-						return obj;
-					}, {}) 
-					: {
-						'use-sync-external-store/shim/index.js': 'react'
+					],
+					output: {
+						dir: './dist'
 					}
+				}
 			},
 			plugins: [
 				dts({
-					insertTypesEntry: true,
-					rollupTypes: true,
+					afterBuild,
 					bundledPackages: packagesNames,
 					compilerOptions: {
-						preserveSymlinks: true,
-						paths: {}
+						baseUrl: '.'
 					},
-					afterBuild
+					insertTypesEntry: true,
+					rollupTypes: true
 				}),
 				{
-					name: 'strip-extension-plugin',
 					apply: 'build',
 					enforce: 'post',
 					generateBundle(_, bundle) {
@@ -158,28 +141,37 @@ export const defineLibConfig = (
 							if (file.type === 'chunk') {
 								let code = file.code;
 								// Regex to find import statements ending with .js
-								code = code.replace(/(import\s*[^'"]+['"])([^'"]+)\.js(['"])/g, '$1$2$3');
+								code = code.replaceAll(/(import\s*[^'"]+['"])([^'"]+)\.js(['"])/g, '$1$2$3');
 								file.code = code;
 							}
 						}
 					},
+					name: 'strip-extension-plugin',
 					async writeBundle(options, bundle) {
-						const dir = options.dir ?? dirname(options.file ?? '');
+						const dir = options.dir ?? path.dirname(options.file ?? '');
 						await Promise.all(
 							Object.entries(bundle)
 							.map(async ([fileName, file]) => {
 								if (file.type === 'chunk') {
-									const filePath = join(dir, fileName);
+									const filePath = path.join(dir, fileName);
 									let code = await readFile(filePath, 'utf8');
 									// Regex to find import statements ending with .js
-									code = code.replace(/(import\s*[^'"]+['"])([^'"]+)\.js(['"])/g, '$1$2$3');
+									code = code.replaceAll(/(import\s*[^'"]+['"])([^'"]+)\.js(['"])/g, '$1$2$3');
 									await writeFile(filePath, code, 'utf8');
 								}
 							})
 						);
 					}
 				}
-			]
+			],
+			resolve: {
+				tsconfigPaths: true
+			},
+			test: {
+				environment: 'jsdom',
+				globals: true,
+				setupFiles: './src/setupTests.ts'
+			}
 		}
 	);
 });

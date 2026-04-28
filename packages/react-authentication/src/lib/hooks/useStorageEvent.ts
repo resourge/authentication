@@ -10,7 +10,7 @@ function debounce(func: () => void, wait: number) {
 	};
 }
 
-export const useStorageEvent = globalThis.window && typeof globalThis.window.addEventListener !== 'undefined' 
+export const useStorageEvent = globalThis.window && globalThis.window.addEventListener !== undefined 
 	? (onStorageChange: () => void) => {
 		useEffect(() => {
 			const _onStorageChange = debounce(onStorageChange, 400);
@@ -23,10 +23,10 @@ export const useStorageEvent = globalThis.window && typeof globalThis.window.add
 					_onStorageChange();
 				}
 			};
-			window.addEventListener('storage', onStorage, true);
+			globalThis.addEventListener('storage', onStorage, true);
 
 			return () => {
-				window.removeEventListener('storage', onStorage, true);
+				globalThis.removeEventListener('storage', onStorage, true);
 			};
 		}, []);
 	} 

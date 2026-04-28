@@ -1,4 +1,4 @@
-/* eslint-disable n/handle-callback-err */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { type OnLoginParamType } from '../context/AuthenticationContext';
 
@@ -12,9 +12,16 @@ export const SessionService = {
 	authenticate: (): Promise<void> => Promise.resolve(),
 
 	/**
+	 * Method to get valid token (if expired it get the new version)
+	 * @param getToken
+ 	 * @important @param ignoreRefreshToken This is needed to make sure requests don't create loop
+	 */
+	getToken: (_isRefreshTokenRequest: boolean): Promise<null | string | undefined> => Promise.resolve(null),
+
+	/**
 	 * Method to call to login the user
 	 */
-	login: <T extends OnLoginParamType>(config: T): Promise<boolean> => Promise.resolve(false),
+	login: <T extends OnLoginParamType>(_config: T): Promise<boolean> => Promise.resolve(false),
 
 	/**
 	 * Method to call when login out user
@@ -25,20 +32,13 @@ export const SessionService = {
 	 * Method to refresh current token
 	 */
 	refreshToken: (): Promise<boolean> => Promise.resolve(false),
-
-	/**
-	 * Method for manual custom login (ex: google, apple, etc)
-	 */
-	setToken: (token: string | null, refreshToken?: string | null | undefined): Promise<boolean> => Promise.resolve(false),
 	
 	/**
 	 * Method to call in case there is a need for custom Authentication errors
 	 */
-	setAuthenticationError: (error: Error) => { },
+	setAuthenticationError: (_error: Error) => { },
 	/**
-	 * Method to get valid token (if expired it get the new version)
-	 * @param getToken
- 	 * @important @param ignoreRefreshToken This is needed to make sure requests don't create loop
+	 * Method for manual custom login (ex: google, apple, etc)
 	 */
-	getToken: (isRefreshTokenRequest: boolean): Promise<string | null | undefined> => Promise.resolve(undefined)
+	setToken: (_token: null | string, _refreshToken?: null | string ): Promise<boolean> => Promise.resolve(false)
 };

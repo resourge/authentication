@@ -7,7 +7,7 @@ export function usePreventMultiple<T extends any[], Result>(cb: (...args: T) => 
 		if ( preventMultipleRef.current ) {
 			return preventMultipleRef.current;
 		}
-		// eslint-disable-next-line n/no-callback-literal
+		
 		preventMultipleRef.current = cb(...args)
 		.finally(() => {
 			preventMultipleRef.current = undefined;

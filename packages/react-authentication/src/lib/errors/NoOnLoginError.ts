@@ -3,7 +3,5 @@ export class NoOnLoginError extends Error {
 		super('\'onLogin\' from AuthenticationSystem is mandatory when using method \'login\'');
 
 		this.name = 'NoOnLoginError';
-
-		Error.captureStackTrace(this, NoOnLoginError);
 	}
 }

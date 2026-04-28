@@ -5,6 +5,7 @@ const globalState = {
 };
 
 NetInfo.fetch()
+// eslint-disable-next-line unicorn/prefer-top-level-await
 .then((state) => {
 	globalState.current = Boolean(state.isConnected);
 });

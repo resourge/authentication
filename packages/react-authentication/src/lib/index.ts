@@ -1,4 +1,3 @@
-export { SessionService } from './services';
 export {
 	AuthenticationSystem,
 	type AuthenticationSystemProps,
@@ -6,16 +5,17 @@ export {
 	type ErrorBoundaryProps
 } from './components';
 export {
-	useAuthenticationContext,
-	usePermissionsContext,
 	type AuthenticationContextType,
-	type PermissionsContextType
+	type PermissionsContextType,
+	useAuthenticationContext,
+	usePermissionsContext
 } from './context';
+export { SessionService } from './services';
 export {
+	setupAuthentication,
 	type SetupAuthenticationReturn,
 	type SetupAuthenticationStorage,
 	type SetupAuthenticationTokenType,
-	type SetupAuthenticationType,
-	setupAuthentication
+	type SetupAuthenticationType
 } from './setupAuthentication';
 export { type BasePermissionType, type BaseUserType } from './types';

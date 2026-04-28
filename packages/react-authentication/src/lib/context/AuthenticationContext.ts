@@ -4,11 +4,6 @@ import { NoContextError } from '../errors/NoContextError';
 import { type BaseUserType } from '../types/BaseUser';
 import { IS_DEV } from '../utils/constants';
 
-export type OnLoginParamType = {
-	email: string
-	password: string
-};
-
 export type AuthenticationContextType<
 	U extends BaseUserType = any,
 	LU extends Record<string, any> = any
@@ -32,7 +27,7 @@ export type AuthenticationContextType<
 	/**
 	 * Method for manual custom login (ex: google, apple, etc)
 	 */
-	setToken: (token: string | null, refreshToken?: string | null | undefined) => Promise<boolean>
+	setToken: (token: null | string, refreshToken?: null | string ) => Promise<boolean>
 	/**
 	 * To manually update user
 	 */
@@ -40,14 +35,18 @@ export type AuthenticationContextType<
 	/**
 	 * Authentication token
 	 */
-	token: string | null
+	token: null | string
 	/**
 	 * User instance
 	 */
 	user: U
 };
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export type OnLoginParamType = {
+	email: string
+	password: string
+};
+ 
 export const AuthenticationContext = createContext<AuthenticationContextType>(null!);
 
 /**
@@ -59,13 +58,11 @@ export const useAuthenticationContext = <
 >(): AuthenticationContextType<U, LU> => {
 	const context = useContext(AuthenticationContext);
 
-	if ( IS_DEV ) {
-		if ( !context ) {
-			throw new NoContextError(
-				'useAuthenticationContext',
-				'AuthenticationContext'
-			);
-		}
+	if ( IS_DEV && !context ) {
+		throw new NoContextError(
+			'useAuthenticationContext',
+			'AuthenticationContext'
+		);
 	}
 
 	return context as AuthenticationContextType<U, LU>;

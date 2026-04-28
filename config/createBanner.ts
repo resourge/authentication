@@ -1,9 +1,22 @@
-import { readFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import PackageJson from '../package.json';
 
-const { license, author } = PackageJson;
+const { author, license } = PackageJson;
+
+export function createBanner() {
+	const meta = {
+		...import.meta
+	};
+	const folderName = path.dirname(meta.url.replace('file://', ''));
+
+	const { name, version } = JSON.parse(
+		readFileSync(path.resolve(folderName, './package.json'), 'utf8')
+	) as typeof PackageJson;
+	
+	return getBanner(name, process.env.PROJECT_VERSION ?? version, author, license);
+}
 
 function getBanner(libraryName: string, version: string, authorName: string, license: string) {
 	return `/**
@@ -16,17 +29,4 @@ function getBanner(libraryName: string, version: string, authorName: string, lic
  *
  * @license ${license}
  */`;
-}
-
-export function createBanner() {
-	const meta = {
-		...import.meta
-	};
-	const folderName = dirname(meta.url.replace('file://', ''));
-
-	const { name, version } = JSON.parse(
-		readFileSync(resolve(folderName, './package.json'), 'utf-8')
-	) as typeof PackageJson;
-	
-	return getBanner(name, process.env.PROJECT_VERSION ?? version, author, license);
 }

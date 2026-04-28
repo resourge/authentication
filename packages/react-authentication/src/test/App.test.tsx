@@ -1,5 +1,5 @@
-/* eslint-disable resourge-custom-react/folder-file-convention */
 import { render, screen } from '@testing-library/react';
+import { expect, it } from 'vitest';
 
 it('App', () => {
 	render(

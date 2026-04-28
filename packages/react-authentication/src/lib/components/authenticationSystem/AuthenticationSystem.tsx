@@ -8,13 +8,13 @@ export type AuthenticationSystemProps<
 	U extends BaseUserType = BaseUserType,
 	P extends BasePermissionType = BasePermissionType
 > = AuthenticationProviderProps<U, P>
-& ErrorBoundaryProps 
-& {
+	& ErrorBoundaryProps 
+	& {
 	/**
 	 * In case loadingComponent is undefined, the "suspense" will continue in the Suspense Tree
 	 */
-	loadingComponent?: boolean | React.ReactElement | React.ReactFragment | React.ReactPortal | null
-};
+		loadingComponent?: boolean | null | React.ReactElement | React.ReactFragment | React.ReactPortal
+	};
 
 function AuthenticationSystem<
 	U extends BaseUserType = BaseUserType,
@@ -22,9 +22,9 @@ function AuthenticationSystem<
 >({
 	children,
 
-	loadingComponent,
-
 	errorComponent,
+
+	loadingComponent,
 	onError,
 
 	...authenticationProviderProps

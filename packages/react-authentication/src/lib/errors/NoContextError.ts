@@ -3,7 +3,5 @@ export class NoContextError extends Error {
 		super(`${contextHook} can only be used in the context of a <AuthenticationSystem/${contextName}> component.`);
 
 		this.name = 'NoContextError';
-
-		Error.captureStackTrace(this, NoContextError);
 	}
 }

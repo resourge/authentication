@@ -25,10 +25,7 @@
 			"src": [
 				"./src"
 			],
-			"*": ["./*"],
-			"@resourge/translations": [
-				"./packages/translations/src/lib/index.ts"
-			]
+			"*": ["./*"]
 		}
 	},
 	"include": [
